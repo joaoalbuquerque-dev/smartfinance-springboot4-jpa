@@ -3,6 +3,8 @@ package com.smartfinance.entities;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -14,6 +16,9 @@ public class User implements Serializable {
     private String name;
     private String email;
     private String password;
+
+    @OneToMany(mappedBy = "user")
+    private List<Account> accounts = new ArrayList<>();
 
     public User() {
     }
@@ -55,6 +60,10 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Account> getAccounts() {
+        return accounts;
     }
 
     @Override
