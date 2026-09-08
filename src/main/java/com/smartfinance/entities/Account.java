@@ -1,8 +1,12 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -18,6 +22,10 @@ public class Account implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "account")
+    List<Movement> movements = new ArrayList<>();
 
     public Account() {
     }
@@ -59,6 +67,10 @@ public class Account implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<Movement> getMovements() {
+        return movements;
     }
 
     @Override
