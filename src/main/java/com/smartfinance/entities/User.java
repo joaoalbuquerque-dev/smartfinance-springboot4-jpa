@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class User implements Serializable {
     private String email;
     private String password;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Account> accounts = new ArrayList<>();
 

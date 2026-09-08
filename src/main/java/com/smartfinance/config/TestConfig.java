@@ -1,6 +1,8 @@
 package com.smartfinance.config;
 
+import com.smartfinance.entities.Account;
 import com.smartfinance.entities.User;
+import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -16,6 +18,9 @@ public class TestConfig implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
 
     @Override
     public void run(String... args) throws Exception {
@@ -23,6 +28,12 @@ public class TestConfig implements CommandLineRunner {
         User u1 = new User(null, "Maria Brown", "maria@gmail.com", "123456");
         User u2 = new User(null, "Alex Green", "alex@gmail.com","123456");
 
+        Account a1 = new Account(null, "Conta Corrente", 2500.00, u1);
+        Account a2 = new Account(null, "Poupança", 8500.00, u1);
+        Account a3 = new Account(null, "Carteira", 350.00, u2);
+
         userRepository.saveAll(Arrays.asList(u1, u2));
+
+        accountRepository.saveAll(Arrays.asList(a1, a2, a3));
     }
 }
