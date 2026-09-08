@@ -2,7 +2,6 @@ package com.smartfinance.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String bank;
     private Double balance;
 
     @ManyToOne
@@ -30,9 +29,9 @@ public class Account implements Serializable {
     public Account() {
     }
 
-    public Account(Long id, String name, Double balance, User user) {
+    public Account(Long id, String bank, Double balance, User user) {
         this.id = id;
-        this.name = name;
+        this.bank = bank;
         this.balance = balance;
         this.user = user;
     }
@@ -45,12 +44,12 @@ public class Account implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getBank() {
+        return bank;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBank(String bank) {
+        this.bank = bank;
     }
 
     public Double getBalance() {

@@ -15,7 +15,7 @@ public class Movement implements Serializable {
     private Long id;
     private String description;
     private Double amount;
-    private Instant date;
+    private Instant transactionDate;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -24,11 +24,11 @@ public class Movement implements Serializable {
     public Movement() {
     }
 
-    public Movement(Long id, String description, Double amount, Instant date, Account account) {
+    public Movement(Long id, String description, Double amount, Instant transactionDate, Account account) {
         this.id = id;
         this.description = description;
         this.amount = amount;
-        this.date = date;
+        this.transactionDate = transactionDate;
         this.account = account;
     }
 
@@ -56,12 +56,12 @@ public class Movement implements Serializable {
         this.amount = amount;
     }
 
-    public Instant getDate() {
-        return date;
+    public Instant getTransactionDate() {
+        return transactionDate;
     }
 
     public void setDate(Instant date) {
-        this.date = date;
+        this.transactionDate = transactionDate;
     }
 
     @Override
