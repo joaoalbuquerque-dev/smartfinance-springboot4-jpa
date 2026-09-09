@@ -1,10 +1,12 @@
 package com.smartfinance.config;
 
 import com.smartfinance.entities.Account;
+import com.smartfinance.entities.Category;
 import com.smartfinance.entities.Movement;
 import com.smartfinance.entities.User;
 import com.smartfinance.entities.enums.AccountType;
 import com.smartfinance.repositories.AccountRepository;
+import com.smartfinance.repositories.CategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class TestConfig implements CommandLineRunner {
     @Autowired
     private MovementRepository movementRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -41,11 +46,16 @@ public class TestConfig implements CommandLineRunner {
         Movement m1 = new Movement(null, "Supermercado", 800.00, Instant.now(), a1);
         Movement m2 = new Movement(null, "Farmácia", 100.00, Instant.now(), a3);
 
+        Category c1 = new Category(null, "Alimentação");
+        Category c2 = new Category(null, "Saúde");
+
         userRepository.saveAll(Arrays.asList(u1, u2));
 
         accountRepository.saveAll(Arrays.asList(a1, a2, a3));
 
         movementRepository.saveAll(Arrays.asList(m1, m2));
+
+        categoryRepository.saveAll(Arrays.asList(c1, c2));
 
 
     }
