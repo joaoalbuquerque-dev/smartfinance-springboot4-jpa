@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.smartfinance.entities.enums.TransactionType;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -17,6 +18,9 @@ public class Movement implements Serializable {
     private Double amount;
     private Instant transactionDate;
 
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
+
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
@@ -24,11 +28,12 @@ public class Movement implements Serializable {
     public Movement() {
     }
 
-    public Movement(Long id, String description, Double amount, Instant transactionDate, Account account) {
+    public Movement(Long id, String description, Double amount, Instant transactionDate, TransactionType transactionType, Account account) {
         this.id = id;
         this.description = description;
         this.amount = amount;
         this.transactionDate = transactionDate;
+        this.transactionType = transactionType;
         this.account = account;
     }
 
@@ -62,6 +67,14 @@ public class Movement implements Serializable {
 
     public void setDate(Instant date) {
         this.transactionDate = transactionDate;
+    }
+
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
     }
 
     @Override

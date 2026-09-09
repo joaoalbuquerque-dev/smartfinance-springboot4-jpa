@@ -1,14 +1,9 @@
 package com.smartfinance.config;
 
-import com.smartfinance.entities.Account;
-import com.smartfinance.entities.Category;
-import com.smartfinance.entities.Movement;
-import com.smartfinance.entities.User;
+import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.AccountType;
-import com.smartfinance.repositories.AccountRepository;
-import com.smartfinance.repositories.CategoryRepository;
-import com.smartfinance.repositories.MovementRepository;
-import com.smartfinance.repositories.UserRepository;
+import com.smartfinance.entities.enums.TransactionType;
+import com.smartfinance.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +38,8 @@ public class TestConfig implements CommandLineRunner {
         Account a2 = new Account(null, "Bradesco", 8500.00, AccountType.SAVINGS, u1);
         Account a3 = new Account(null, "Carteira", 350.00, AccountType.CASH, u2);
 
-        Movement m1 = new Movement(null, "Supermercado", 800.00, Instant.now(), a1);
-        Movement m2 = new Movement(null, "Farmácia", 100.00, Instant.now(), a3);
+        Movement m1 = new Movement(null, "Supermercado", 800.00, Instant.now(), TransactionType.EXPENSE, a1);
+        Movement m2 = new Movement(null, "Farmácia", 100.00, Instant.now(), TransactionType.EXPENSE, a3);
 
         Category c1 = new Category(null, "Alimentação");
         Category c2 = new Category(null, "Saúde");
