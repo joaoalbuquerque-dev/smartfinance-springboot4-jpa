@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_movement")
@@ -24,6 +26,12 @@ public class Movement implements Serializable {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
+    @ManyToMany
+    @JoinTable(name = "tb_movement_category",
+            joinColumns = @JoinColumn(name = "movement_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
 
     public Movement() {
     }
@@ -77,6 +85,10 @@ public class Movement implements Serializable {
         this.transactionType = transactionType;
     }
 
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -88,4 +100,6 @@ public class Movement implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+
 }

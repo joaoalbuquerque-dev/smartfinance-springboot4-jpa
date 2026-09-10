@@ -40,6 +40,8 @@ public class TestConfig implements CommandLineRunner {
 
         Movement m1 = new Movement(null, "Supermercado", 800.00, Instant.now(), TransactionType.EXPENSE, a1);
         Movement m2 = new Movement(null, "Farmácia", 100.00, Instant.now(), TransactionType.EXPENSE, a3);
+        Movement m3 = new Movement(null, "Restaurante", 300.00, Instant.now(), TransactionType.EXPENSE, a1);
+        Movement m4 = new Movement(null, "Médico", 400.00, Instant.now(), TransactionType.EXPENSE, a3);
 
         Category c1 = new Category(null, "Alimentação");
         Category c2 = new Category(null, "Saúde");
@@ -48,9 +50,17 @@ public class TestConfig implements CommandLineRunner {
 
         accountRepository.saveAll(Arrays.asList(a1, a2, a3));
 
-        movementRepository.saveAll(Arrays.asList(m1, m2));
-
         categoryRepository.saveAll(Arrays.asList(c1, c2));
+
+        m1.getCategories().add(c1);
+        m2.getCategories().add(c2);
+        m3.getCategories().add(c1);
+        m4.getCategories().add(c2);
+        m1.getCategories().add(c2);
+
+        System.out.println("Quantidade: " + m1.getCategories().size());
+
+        movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
 
 
     }
