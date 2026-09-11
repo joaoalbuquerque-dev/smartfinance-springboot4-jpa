@@ -58,8 +58,6 @@ public class TestConfig implements CommandLineRunner {
         m4.getCategories().add(c2);
         m1.getCategories().add(c2);
 
-        System.out.println("Quantidade: " + m1.getCategories().size());
-
         movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
 
 
