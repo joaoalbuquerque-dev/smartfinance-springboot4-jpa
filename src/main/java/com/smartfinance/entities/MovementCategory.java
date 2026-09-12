@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -7,6 +8,7 @@ import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "tb_movement_category")
@@ -21,11 +23,12 @@ public class MovementCategory implements Serializable {
     }
 
     public MovementCategory(Movement movement, Category category, Double amount) {
-        id.setMovement(movement);
-        id.setCategory(category);
+        this.id = new MovementCategoryPK();
+        this.id.setMovement(movement);
+        this.id.setCategory(category);
         this.amount = amount;
     }
-
+    @JsonIgnore
     public Movement getMovement() {
         return id.getMovement();
     }
@@ -61,4 +64,5 @@ public class MovementCategory implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }

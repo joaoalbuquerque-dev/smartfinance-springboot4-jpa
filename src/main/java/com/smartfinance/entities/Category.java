@@ -18,8 +18,8 @@ public class Category implements Serializable {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "categories")
-    private Set<Movement> movements = new HashSet<>();
+    @OneToMany(mappedBy = "id.category")
+    private Set<MovementCategory> movementCategories = new HashSet<>();
 
     public Category() {
     }
@@ -45,8 +45,12 @@ public class Category implements Serializable {
         this.name = name;
     }
 
-    public Set<Movement> getMovements() {
-        return movements;
+    public Set<MovementCategory> getMovementCategories() {
+        return movementCategories;
+    }
+
+    public void setMovementCategories(Set<MovementCategory> movementCategories) {
+        this.movementCategories = movementCategories;
     }
 
     @Override
@@ -60,4 +64,5 @@ public class Category implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }

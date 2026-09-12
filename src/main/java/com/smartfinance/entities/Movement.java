@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -27,11 +28,9 @@ public class Movement implements Serializable {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToMany
-    @JoinTable(name = "tb_movement_category",
-            joinColumns = @JoinColumn(name = "movement_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<Category> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "id.movement")
+    private Set<MovementCategory> movementCategories = new HashSet<>();
 
     public Movement() {
     }
@@ -73,7 +72,7 @@ public class Movement implements Serializable {
         return transactionDate;
     }
 
-    public void setDate(Instant date) {
+    public void setDate(Instant transactionDate) {
         this.transactionDate = transactionDate;
     }
 
@@ -85,8 +84,12 @@ public class Movement implements Serializable {
         this.transactionType = transactionType;
     }
 
-    public Set<Category> getCategories() {
-        return categories;
+    public Set<MovementCategory> getMovementCategories() {
+        return movementCategories;
+    }
+
+    public void setMovementCategories(Set<MovementCategory> movementCategories) {
+        this.movementCategories = movementCategories;
     }
 
     @Override
@@ -100,6 +103,5 @@ public class Movement implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
-
 
 }
