@@ -8,7 +8,6 @@ import jakarta.persistence.Table;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Optional;
 
 @Entity
 @Table(name = "tb_movement_category")
@@ -37,6 +36,7 @@ public class MovementCategory implements Serializable {
         id.setMovement(movement);
     }
 
+    @JsonIgnore
     public Category getCategory() {
         return id.getCategory();
     }

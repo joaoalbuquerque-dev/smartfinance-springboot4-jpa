@@ -53,6 +53,14 @@ public class Category implements Serializable {
         this.movementCategories = movementCategories;
     }
 
+    public Set<Movement> getMovements() {
+        Set<Movement> set = new HashSet<>();
+        for (MovementCategory x : movementCategories) {
+            set.add(x.getMovement());
+        }
+        return set;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

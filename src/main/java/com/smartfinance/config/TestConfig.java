@@ -54,6 +54,8 @@ public class TestConfig implements CommandLineRunner {
         MovementCategory mc2 = new MovementCategory(m1, c2, 300.00);
         MovementCategory mc3 = new MovementCategory(m2, c2, 70.00);
         MovementCategory mc4 = new MovementCategory(m2, c1, 30.00);
+        MovementCategory mc5 = new MovementCategory(m3, c1, 300.00);
+        MovementCategory mc6 = new MovementCategory(m4, c2, 400.00);
 
         userRepository.saveAll(Arrays.asList(u1, u2));
 
@@ -63,7 +65,7 @@ public class TestConfig implements CommandLineRunner {
 
         movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
 
-        movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4));
+        movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6));
 
 
     }
