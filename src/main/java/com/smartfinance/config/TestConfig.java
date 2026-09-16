@@ -2,6 +2,7 @@ package com.smartfinance.config;
 
 import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.AccountType;
+import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 @Configuration
@@ -30,6 +32,9 @@ public class TestConfig implements CommandLineRunner {
 
     @Autowired
     private MovementCategoryRepository movementCategoryRepository;
+
+    @Autowired
+    private InstallmentRepository installmentRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -56,6 +61,9 @@ public class TestConfig implements CommandLineRunner {
         MovementCategory mc5 = new MovementCategory(m3, c1, 300.00);
         MovementCategory mc6 = new MovementCategory(m4, c2, 400.00);
 
+        Installment i1 = new Installment(null, 1, 400.00, LocalDate.of(2026, 10, 10), InstallmentStatus.PENDING, m1);
+        Installment i2 = new Installment(null, 2, 400.00, LocalDate.of(2026, 11, 10), InstallmentStatus.PENDING, m1);
+
         userRepository.saveAll(Arrays.asList(u1, u2));
 
         accountRepository.saveAll(Arrays.asList(a1, a2, a3));
@@ -65,6 +73,9 @@ public class TestConfig implements CommandLineRunner {
         movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
 
         movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6));
+
+        installmentRepository.saveAll(Arrays.asList(i1, i2));
+
 
     }
 

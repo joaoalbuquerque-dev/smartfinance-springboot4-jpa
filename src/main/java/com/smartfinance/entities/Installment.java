@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.smartfinance.entities.enums.InstallmentStatus;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -17,6 +18,9 @@ public class Installment implements Serializable {
     private Double amount;
     private LocalDate dueDate;
 
+    @Enumerated(EnumType.STRING)
+    private InstallmentStatus status;
+
     @ManyToOne
     @JoinColumn(name = "movement_id")
     private Movement movement;
@@ -27,11 +31,12 @@ public class Installment implements Serializable {
     public Installment() {
     }
 
-    public Installment(Long id, Integer number, Double amount, LocalDate dueDate, Movement movement) {
+    public Installment(Long id, Integer number, Double amount, LocalDate dueDate,  InstallmentStatus status, Movement movement) {
         this.id = id;
         this.number = number;
         this.amount = amount;
         this.dueDate = dueDate;
+        this.status = status;
         this.movement = movement;
     }
 
