@@ -30,6 +30,7 @@ public class Movement implements Serializable {
     @OneToMany(mappedBy = "id.movement")
     private Set<MovementCategory> movementCategories = new HashSet<>();
 
+
     @OneToMany(mappedBy = "movement")
     private List<Installment> installments = new ArrayList<>();
 
@@ -99,6 +100,10 @@ public class Movement implements Serializable {
 
     public void setMovementCategories(Set<MovementCategory> movementCategories) {
         this.movementCategories = movementCategories;
+    }
+
+    public List<Installment> getInstallments() {
+        return installments;
     }
 
     @Override

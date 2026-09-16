@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import jakarta.persistence.*;
 
@@ -21,6 +22,7 @@ public class Installment implements Serializable {
     @Enumerated(EnumType.STRING)
     private InstallmentStatus status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "movement_id")
     private Movement movement;
@@ -78,6 +80,10 @@ public class Installment implements Serializable {
 
     public void setMovement(Movement movement) {
         this.movement = movement;
+    }
+
+    public InstallmentStatus getStatus() {
+        return status;
     }
 
     @Override
