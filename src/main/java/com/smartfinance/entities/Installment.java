@@ -21,6 +21,9 @@ public class Installment implements Serializable {
     @JoinColumn(name = "movement_id")
     private Movement movement;
 
+    @OneToOne(mappedBy = "installment")
+    private Payment payment;
+
     public Installment() {
     }
 
