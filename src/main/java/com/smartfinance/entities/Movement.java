@@ -6,9 +6,7 @@ import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_movement")
@@ -31,6 +29,9 @@ public class Movement implements Serializable {
 
     @OneToMany(mappedBy = "id.movement")
     private Set<MovementCategory> movementCategories = new HashSet<>();
+
+    @OneToMany(mappedBy = "movement")
+    private List<Installment> installments = new ArrayList<>();
 
     public Movement() {
     }

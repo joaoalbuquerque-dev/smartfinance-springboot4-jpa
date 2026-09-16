@@ -3,7 +3,6 @@ package com.smartfinance.config;
 import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.AccountType;
 import com.smartfinance.entities.enums.TransactionType;
-import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -66,7 +65,6 @@ public class TestConfig implements CommandLineRunner {
         movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
 
         movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6));
-
 
     }
 
