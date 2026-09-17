@@ -86,6 +86,10 @@ public class Installment implements Serializable {
         return status;
     }
 
+    public Payment getPayment() {
+        return payment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

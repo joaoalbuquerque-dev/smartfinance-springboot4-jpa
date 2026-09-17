@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ public class Payment implements Serializable {
         this.paidAt = paidAt;
     }
 
+    @JsonIgnore
     public Installment getInstallment() {
         return installment;
     }

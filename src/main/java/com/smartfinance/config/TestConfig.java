@@ -36,6 +36,9 @@ public class TestConfig implements CommandLineRunner {
     @Autowired
     private InstallmentRepository installmentRepository;
 
+    @Autowired
+    private PaymentRepository paymentRepository;
+
     @Override
     public void run(String... args) throws Exception {
 
@@ -75,6 +78,12 @@ public class TestConfig implements CommandLineRunner {
         movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6));
 
         installmentRepository.saveAll(Arrays.asList(i1, i2));
+
+        Payment p1 = new Payment(null, Instant.now(), i1);
+
+        paymentRepository.save(p1);
+
+
 
 
     }
