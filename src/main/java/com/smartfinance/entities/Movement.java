@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.smartfinance.entities.enums.TransactionType;
 import jakarta.persistence.*;
@@ -17,6 +18,8 @@ public class Movement implements Serializable {
     private Long id;
     private String description;
     private Double amount;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant transactionDate;
 
     @Enumerated(EnumType.STRING)

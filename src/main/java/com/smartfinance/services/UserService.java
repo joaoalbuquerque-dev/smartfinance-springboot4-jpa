@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.UserRepository;
+import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class UserService {
 
     public User findById(Long id) {
        Optional<User> obj = repository.findById(id);
-       return obj.get();
+       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     public User insert(User obj) {

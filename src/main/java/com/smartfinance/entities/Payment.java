@@ -1,5 +1,6 @@
 package com.smartfinance.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -18,6 +19,8 @@ public class Payment implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "installment_id")
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-'T'HH:mm:ss'Z'", timezone = "GMT")
     private Installment installment;
 
     public Payment() {
