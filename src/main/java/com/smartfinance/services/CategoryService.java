@@ -3,11 +3,14 @@ package com.smartfinance.services;
 import com.smartfinance.entities.Category;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.CategoryRepository;
+import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import jakarta.persistence.metamodel.Metamodel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +34,14 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        if(!repository.existsById(id)) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataBaseException(e.getMessage());
+        }
     }
 
     public Category update(Long id, Category obj) {
