@@ -5,6 +5,7 @@ import com.smartfinance.entities.User;
 import com.smartfinance.repositories.CategoryRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.metamodel.Metamodel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -45,9 +46,13 @@ public class CategoryService {
     }
 
     public Category update(Long id, Category obj) {
-        Category entity = repository.getReferenceById(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+        try {
+            Category entity = repository.getReferenceById(id);
+            updateData(entity, obj);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
     }
 
     private void updateData(Category entity, Category obj) {
