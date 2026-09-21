@@ -40,7 +40,6 @@ public class UserService {
        } catch (DataIntegrityViolationException e) {
            throw new DataBaseException(e.getMessage());
        }
-
     }
 
     public User update(Long id, User obj) {
