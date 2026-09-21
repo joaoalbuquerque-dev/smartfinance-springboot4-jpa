@@ -1,7 +1,9 @@
 package com.smartfinance.services;
 
 import com.smartfinance.entities.Category;
+import com.smartfinance.entities.User;
 import com.smartfinance.repositories.CategoryRepository;
+import jakarta.persistence.metamodel.Metamodel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +31,15 @@ public class CategoryService {
 
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    public Category update(Long id, Category obj) {
+        Category entity = repository.getReferenceById(id);
+        updateData(entity, obj);
+        return repository.save(entity);
+    }
+
+    private void updateData(Category entity, Category obj) {
+        entity.setName(obj.getName());
     }
 }
