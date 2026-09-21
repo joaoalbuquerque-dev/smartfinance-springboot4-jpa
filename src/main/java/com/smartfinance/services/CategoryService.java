@@ -3,6 +3,7 @@ package com.smartfinance.services;
 import com.smartfinance.entities.Category;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.CategoryRepository;
+import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import jakarta.persistence.metamodel.Metamodel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class CategoryService {
 
     public Category findById(Long id) {
        Optional<Category> obj = repository.findById(id);
-       return obj.get();
+       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     public Category insert(Category obj) {
