@@ -22,4 +22,8 @@ public class AccountService {
        Optional<Account> obj = repository.findById(id);
        return obj.get();
     }
+
+    public Account insert(Account obj) {
+        return repository.save(obj);
+    }
 }
