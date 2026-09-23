@@ -30,4 +30,15 @@ public class AccountService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    public Account update(Long id, Account obj) {
+        Account entity = repository.getReferenceById(id);
+        updateData(entity, obj);
+        return repository.save(entity);
+    }
+
+    private void updateData(Account entity, Account obj) {
+        entity.setBank(entity.getBank());
+        entity.setAccountType(entity.getAccountType());
+    }
 }

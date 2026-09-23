@@ -42,4 +42,10 @@ public class AccountResource {
          service.delete(id);
          return ResponseEntity.noContent().build();
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<Account> update(@PathVariable Long id, @RequestBody Account obj) {
+        obj = service.update(id, obj);
+        return ResponseEntity.ok().body(obj);
+    }
 }
