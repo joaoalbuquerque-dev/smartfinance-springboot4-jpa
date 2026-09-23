@@ -4,6 +4,7 @@ import com.smartfinance.entities.Account;
 import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +30,14 @@ public class AccountService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        if(!repository.existsById(id)) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceNotFoundExcepetion(e.getMessage());
+        }
     }
 
     public Account update(Long id, Account obj) {
