@@ -3,6 +3,7 @@ package com.smartfinance.services;
 import com.smartfinance.entities.Account;
 import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -41,9 +42,14 @@ public class AccountService {
     }
 
     public Account update(Long id, Account obj) {
-        Account entity = repository.getReferenceById(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+        try {
+            Account entity = repository.getReferenceById(id);
+            updateData(entity, obj);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
+
     }
 
     private void updateData(Account entity, Account obj) {
