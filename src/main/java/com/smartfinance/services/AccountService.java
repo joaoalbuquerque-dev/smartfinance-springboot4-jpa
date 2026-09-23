@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.Account;
 import com.smartfinance.repositories.AccountRepository;
+import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class AccountService {
 
     public Account findById(Long id) {
        Optional<Account> obj = repository.findById(id);
-       return obj.get();
+       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     public Account insert(Account obj) {
