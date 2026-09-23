@@ -26,4 +26,8 @@ public class AccountService {
     public Account insert(Account obj) {
         return repository.save(obj);
     }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
 }
