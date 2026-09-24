@@ -1,5 +1,8 @@
 package com.smartfinance.entities.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import tools.jackson.databind.deser.ValueInstantiator;
+
 public enum AccountType {
 
     CHECKING(1),
@@ -16,6 +19,7 @@ public enum AccountType {
         return code;
     }
 
+    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static AccountType valueOf(int code) {
         for(AccountType value : AccountType.values()) {
             if (value.getCode() == code) {
