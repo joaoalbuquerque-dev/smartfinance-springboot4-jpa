@@ -22,4 +22,8 @@ public class MovementService {
        Optional<Movement> obj = repository.findById(id);
        return obj.get();
     }
+
+    public Movement insert(Movement obj) {
+        return repository.save(obj);
+    }
 }
