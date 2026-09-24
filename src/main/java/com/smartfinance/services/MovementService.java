@@ -2,8 +2,10 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.Movement;
 import com.smartfinance.repositories.MovementRepository;
+import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,15 @@ public class MovementService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
+        try {
+            repository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
     }
 
     public Movement update(Long id, Movement obj) {
