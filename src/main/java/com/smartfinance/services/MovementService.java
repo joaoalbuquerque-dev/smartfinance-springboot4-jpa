@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.Movement;
 import com.smartfinance.repositories.MovementRepository;
+import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class MovementService {
 
     public Movement findById(Long id) {
        Optional<Movement> obj = repository.findById(id);
-       return obj.get();
+       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     public Movement insert(Movement obj) {
