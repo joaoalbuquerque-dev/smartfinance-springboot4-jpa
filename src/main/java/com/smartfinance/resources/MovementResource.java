@@ -39,7 +39,7 @@ public class MovementResource {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.findById(id);
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 

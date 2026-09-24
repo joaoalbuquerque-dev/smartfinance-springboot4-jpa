@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.Account;
 import com.smartfinance.repositories.AccountRepository;
+import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class AccountService {
         try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new ResourceNotFoundExcepetion(e.getMessage());
+            throw new DataBaseException(e.getMessage());
         }
     }
 
