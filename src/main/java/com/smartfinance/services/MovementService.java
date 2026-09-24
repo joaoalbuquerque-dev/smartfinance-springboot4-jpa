@@ -30,4 +30,18 @@ public class MovementService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    public Movement update(Long id, Movement obj) {
+        Movement entity = repository.getReferenceById(id);
+        updateData(entity, obj);
+        return repository.save(entity);
+    }
+
+    private void updateData(Movement entity, Movement obj) {
+        entity.setDescription(obj.getDescription());
+        entity.setAccount(obj.getAccount());
+        entity.setTransactionType(obj.getTransactionType());
+        entity.setMovementCategories(obj.getMovementCategories());
+        entity.setAmount(obj.getAmount());
+    }
 }
