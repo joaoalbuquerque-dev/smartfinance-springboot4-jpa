@@ -4,6 +4,7 @@ import com.smartfinance.entities.Movement;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -39,13 +40,17 @@ public class MovementService {
         } catch (DataIntegrityViolationException e) {
             throw new DataBaseException(e.getMessage());
         }
-
     }
 
     public Movement update(Long id, Movement obj) {
-        Movement entity = repository.getReferenceById(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+        try {
+            Movement entity = repository.getReferenceById(id);
+            updateData(entity, obj);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
+
     }
 
     private void updateData(Movement entity, Movement obj) {
