@@ -1,6 +1,7 @@
 package com.smartfinance.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -36,7 +37,7 @@ public class MovementCategory implements Serializable {
         id.setMovement(movement);
     }
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public Category getCategory() {
         return id.getCategory();
     }

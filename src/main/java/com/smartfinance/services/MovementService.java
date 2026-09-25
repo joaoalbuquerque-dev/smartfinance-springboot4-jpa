@@ -1,10 +1,12 @@
 package com.smartfinance.services;
 
 import com.smartfinance.entities.Movement;
+import com.smartfinance.entities.MovementCategory;
+import com.smartfinance.entities.pk.MovementCategoryPK;
+import com.smartfinance.repositories.MovementCategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class MovementService {
     @Autowired
     private MovementRepository repository;
 
+    @Autowired
+    private MovementCategoryRepository movementCategoryRepository;
+
     public List<Movement> findAll() {
         return repository.findAll();
     }
@@ -28,7 +33,13 @@ public class MovementService {
     }
 
     public Movement insert(Movement obj) {
-        return repository.save(obj);
+        repository.save(obj);
+
+        for(MovementCategory mc : obj.getMovementCategories()) {
+            mc.setMovement(obj);
+            movementCategoryRepository.save(mc);
+        }
+        return obj;
     }
 
     public void delete(Long id) {
@@ -43,21 +54,27 @@ public class MovementService {
     }
 
     public Movement update(Long id, Movement obj) {
-        try {
-            Movement entity = repository.getReferenceById(id);
-            updateData(entity, obj);
-            return repository.save(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
+        Movement entity = repository.getReferenceById(id);
+        updateData(entity, obj);
 
+        for (MovementCategory mc : obj.getMovementCategories()) {
+            MovementCategoryPK pk = new MovementCategoryPK();
+            pk.setMovement(entity);
+            pk.setCategory(mc.getCategory());
+
+            MovementCategory entityMc =
+                    movementCategoryRepository.findById(pk)
+                            .orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+            entityMc.setAmount(mc.getAmount());
+            movementCategoryRepository.save(entityMc);
+        }
+        return repository.save(entity);
     }
 
     private void updateData(Movement entity, Movement obj) {
         entity.setDescription(obj.getDescription());
         entity.setAccount(obj.getAccount());
         entity.setTransactionType(obj.getTransactionType());
-        entity.setMovementCategories(obj.getMovementCategories());
         entity.setAmount(obj.getAmount());
     }
 }

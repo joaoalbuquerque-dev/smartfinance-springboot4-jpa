@@ -19,7 +19,7 @@ public class Movement implements Serializable {
     private String description;
     private Double amount;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd-'T'HH:mm:ss'Z'", timezone = "GMT")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant transactionDate;
 
     @Enumerated(EnumType.STRING)
