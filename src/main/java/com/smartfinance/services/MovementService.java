@@ -54,6 +54,9 @@ public class MovementService {
     }
 
     public Movement update(Long id, Movement obj) {
+        if(!repository.existsById(id)) {
+            throw new ResourceNotFoundExcepetion(id);
+        }
         Movement entity = repository.getReferenceById(id);
         updateData(entity, obj);
 
