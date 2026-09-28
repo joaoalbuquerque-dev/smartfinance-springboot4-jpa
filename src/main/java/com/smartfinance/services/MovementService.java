@@ -76,6 +76,7 @@ public class MovementService {
 
     private void updateData(Movement entity, Movement obj) {
         entity.setDescription(obj.getDescription());
+        entity.setDate(obj.getTransactionDate());
         entity.setAccount(obj.getAccount());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());
