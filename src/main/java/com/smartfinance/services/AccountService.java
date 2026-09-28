@@ -55,6 +55,7 @@ public class AccountService {
 
     private void updateData(Account entity, Account obj) {
         entity.setBank(obj.getBank());
+        entity.setBalance(obj.getBalance());
         entity.setAccountType(obj.getAccountType());
     }
 }
