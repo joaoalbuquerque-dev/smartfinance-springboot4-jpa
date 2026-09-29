@@ -9,6 +9,7 @@ import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.repositories.MovementCategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
+import com.smartfinance.services.exceptions.InsufficientBalanceException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,19 +38,21 @@ public class MovementService {
     }
 
     public Movement insert(Movement obj) {
-        repository.save(obj);
 
         Account account = accountRepository.findById(obj.getAccount().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
 
         if(obj.getTransactionType() == TransactionType.EXPENSE) {
+            if(obj.getAmount() > account.getBalance()) {
+                throw new InsufficientBalanceException("Insufficient balance");
+            }
             account.setBalance(account.getBalance() - obj.getAmount());
         }
 
         else if(obj.getTransactionType() == TransactionType.INCOME) {
             account.setBalance(account.getBalance() + obj.getAmount());
         }
-
+        repository.save(obj);
         accountRepository.save(account);
 
         for(MovementCategory mc : obj.getMovementCategories()) {
