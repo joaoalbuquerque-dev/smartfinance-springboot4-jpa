@@ -1,8 +1,11 @@
 package com.smartfinance.services;
 
+import com.smartfinance.entities.Account;
 import com.smartfinance.entities.Movement;
 import com.smartfinance.entities.MovementCategory;
+import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.entities.pk.MovementCategoryPK;
+import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.repositories.MovementCategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
@@ -19,9 +22,10 @@ public class MovementService {
 
     @Autowired
     private MovementRepository repository;
-
     @Autowired
     private MovementCategoryRepository movementCategoryRepository;
+    @Autowired
+    private AccountRepository accountRepository;
 
     public List<Movement> findAll() {
         return repository.findAll();
@@ -35,10 +39,18 @@ public class MovementService {
     public Movement insert(Movement obj) {
         repository.save(obj);
 
+        Account account = accountRepository.findById(obj.getAccount().getId())
+                .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
+
+        if(obj.getTransactionType() == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() - obj.getAmount());
+            accountRepository.save(account);
+        }
+
         for(MovementCategory mc : obj.getMovementCategories()) {
             mc.setMovement(obj);
             movementCategoryRepository.save(mc);
-        }
+         }
         return obj;
     }
 
@@ -76,7 +88,7 @@ public class MovementService {
 
     private void updateData(Movement entity, Movement obj) {
         entity.setDescription(obj.getDescription());
-        entity.setDate(obj.getTransactionDate());
+        entity.setTransactionDate(obj.getTransactionDate());
         entity.setAccount(obj.getAccount());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());

@@ -2,6 +2,7 @@ package com.smartfinance.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartfinance.entities.enums.TransactionType;
 import jakarta.persistence.*;
 
@@ -25,7 +26,7 @@ public class Movement implements Serializable {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
@@ -77,7 +78,7 @@ public class Movement implements Serializable {
         return transactionDate;
     }
 
-    public void setDate(Instant transactionDate) {
+    public void setTransactionDate(Instant transactionDate) {
         this.transactionDate = transactionDate;
     }
 
