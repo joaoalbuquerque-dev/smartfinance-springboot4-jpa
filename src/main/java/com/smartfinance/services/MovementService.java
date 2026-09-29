@@ -44,8 +44,13 @@ public class MovementService {
 
         if(obj.getTransactionType() == TransactionType.EXPENSE) {
             account.setBalance(account.getBalance() - obj.getAmount());
-            accountRepository.save(account);
         }
+
+        else if(obj.getTransactionType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() + obj.getAmount());
+        }
+
+        accountRepository.save(account);
 
         for(MovementCategory mc : obj.getMovementCategories()) {
             mc.setMovement(obj);
