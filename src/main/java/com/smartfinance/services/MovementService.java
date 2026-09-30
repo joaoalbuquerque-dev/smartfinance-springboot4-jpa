@@ -41,6 +41,9 @@ public class MovementService {
         if(obj.getAmount() <= 0.0) {
             throw new InvalidAmountException("Amount must be greater than zero");
         }
+
+        validateCategories(obj);
+
         Account account = accountRepository.findById(obj.getAccount().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
 
@@ -99,5 +102,16 @@ public class MovementService {
         entity.setAccount(obj.getAccount());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());
+    }
+
+    private void validateCategories(Movement obj) {
+        double totalCategories = 0.0;
+
+        for (MovementCategory mc : obj.getMovementCategories()) {
+            totalCategories += mc.getAmount();
+        }
+        if(totalCategories != obj.getAmount()) {
+            throw new InvalidAmountException("The amounts don't match.");
+        }
     }
 }
