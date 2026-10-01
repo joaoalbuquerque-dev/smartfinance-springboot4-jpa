@@ -10,6 +10,7 @@ import com.smartfinance.repositories.MovementCategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.InvalidAmountException;
+import com.smartfinance.services.exceptions.InvalidMovementCategoryException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,6 +44,7 @@ public class MovementService {
         }
 
         validateCategories(obj);
+        validateAmountCategories(obj);
 
         Account account = accountRepository.findById(obj.getAccount().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
@@ -104,7 +106,7 @@ public class MovementService {
         entity.setAmount(obj.getAmount());
     }
 
-    private void validateCategories(Movement obj) {
+    private void validateAmountCategories(Movement obj) {
         double totalCategories = 0.0;
 
         for (MovementCategory mc : obj.getMovementCategories()) {
@@ -114,4 +116,18 @@ public class MovementService {
             throw new InvalidAmountException("The amounts don't match.");
         }
     }
+
+    private void validateCategories(Movement obj) {
+        if (obj.getMovementCategories().isEmpty()) {
+            throw new InvalidMovementCategoryException("Movement must have at least one category");
+        }
+
+        for (MovementCategory mc : obj.getMovementCategories()) {
+            if (mc.getCategory() == null) {
+                throw new InvalidMovementCategoryException("Category cannot be null");
+            }
+        }
+    }
+
+    
 }
