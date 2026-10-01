@@ -44,6 +44,7 @@ public class MovementService {
         }
 
         validateCategories(obj);
+        validateAmountsNegative(obj);
         validateAmountCategories(obj);
 
         Account account = accountRepository.findById(obj.getAccount().getId())
@@ -106,17 +107,6 @@ public class MovementService {
         entity.setAmount(obj.getAmount());
     }
 
-    private void validateAmountCategories(Movement obj) {
-        double totalCategories = 0.0;
-
-        for (MovementCategory mc : obj.getMovementCategories()) {
-            totalCategories += mc.getAmount();
-        }
-        if(totalCategories != obj.getAmount()) {
-            throw new InvalidAmountException("The amounts don't match.");
-        }
-    }
-
     private void validateCategories(Movement obj) {
         if (obj.getMovementCategories().isEmpty()) {
             throw new InvalidMovementCategoryException("Movement must have at least one category");
@@ -129,5 +119,23 @@ public class MovementService {
         }
     }
 
-    
+    private void validateAmountsNegative(Movement obj) {
+        for (MovementCategory mc : obj.getMovementCategories()) {
+            if (mc.getAmount() <= 0.0) {
+                throw new InvalidAmountException("Category amount must be greater than zero");
+            }
+        }
+    }
+
+    private void validateAmountCategories(Movement obj) {
+        double totalCategories = 0.0;
+
+        for (MovementCategory mc : obj.getMovementCategories()) {
+            totalCategories += mc.getAmount();
+        }
+        if(totalCategories != obj.getAmount()) {
+            throw new InvalidAmountException("The amounts don't match.");
+        }
+    }
+
 }
