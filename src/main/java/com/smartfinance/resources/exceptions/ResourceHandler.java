@@ -1,9 +1,6 @@
 package com.smartfinance.resources.exceptions;
 
-import com.smartfinance.services.exceptions.DataBaseException;
-import com.smartfinance.services.exceptions.InvalidAmountException;
-import com.smartfinance.services.exceptions.InvalidMovementCategoryException;
-import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
+import com.smartfinance.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +38,14 @@ public class ResourceHandler {
     @ExceptionHandler(InvalidMovementCategoryException.class)
     public ResponseEntity<StandardError> invalidMovementCategory(InvalidMovementCategoryException e, HttpServletRequest request) {
         String error = "Invalid movement category";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(InvalidInstallmentException.class)
+    public ResponseEntity<StandardError> invalidInstallment(InvalidInstallmentException e, HttpServletRequest request) {
+        String error = "Invalid installment";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);

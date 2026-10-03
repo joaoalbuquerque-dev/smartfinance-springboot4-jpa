@@ -1,7 +1,6 @@
 package com.smartfinance.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartfinance.entities.enums.TransactionType;
 import jakarta.persistence.*;
@@ -31,11 +30,12 @@ public class Movement implements Serializable {
     @JoinColumn(name = "account_id")
     private Account account;
 
+
     @OneToMany(mappedBy = "id.movement")
     private Set<MovementCategory> movementCategories = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "movement")
+    @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL)
     private List<Installment> installments = new ArrayList<>();
 
     public Movement() {
