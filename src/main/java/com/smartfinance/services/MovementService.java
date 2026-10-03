@@ -1,12 +1,10 @@
 package com.smartfinance.services;
 
-import com.smartfinance.entities.Account;
-import com.smartfinance.entities.Installment;
-import com.smartfinance.entities.Movement;
-import com.smartfinance.entities.MovementCategory;
+import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.AccountRepository;
+import com.smartfinance.repositories.CategoryRepository;
 import com.smartfinance.repositories.MovementCategoryRepository;
 import com.smartfinance.repositories.MovementRepository;
 import com.smartfinance.services.exceptions.*;
@@ -28,6 +26,8 @@ public class MovementService {
     private MovementCategoryRepository movementCategoryRepository;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     public List<Movement> findAll() {
         return repository.findAll();
@@ -44,7 +44,6 @@ public class MovementService {
         }
 
         validateCategories(obj);
-        validateAmountsNegative(obj);
         validateAmountCategories(obj);
 
         Account account = accountRepository.findById(obj.getAccount().getId())
@@ -110,21 +109,20 @@ public class MovementService {
     }
 
     private void validateCategories(Movement obj) {
+        Set<Long> categoryIds = new HashSet<>();
         if (obj.getMovementCategories().isEmpty()) {
             throw new InvalidMovementCategoryException("Movement must have at least one category");
         }
-
         for (MovementCategory mc : obj.getMovementCategories()) {
+
             if (mc.getCategory() == null) {
                 throw new InvalidMovementCategoryException("Category cannot be null");
             }
-        }
-    }
+          categoryRepository.findById(mc.getCategory().getId())
+                    .orElseThrow(()-> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
 
-    private void validateAmountsNegative(Movement obj) {
-        for (MovementCategory mc : obj.getMovementCategories()) {
-            if (mc.getAmount() <= 0.0) {
-                throw new InvalidAmountException("Category amount must be greater than zero");
+            if (!categoryIds.add(mc.getCategory().getId())) {
+                throw new InvalidMovementCategoryException("Category cannot be duplicated");
             }
         }
     }
@@ -133,6 +131,10 @@ public class MovementService {
         double totalCategories = 0.0;
 
         for (MovementCategory mc : obj.getMovementCategories()) {
+
+            if (mc.getAmount() <= 0.0) {
+                throw new InvalidAmountException("Category amount must be greater than zero");
+            }
             totalCategories += mc.getAmount();
         }
         if(totalCategories != obj.getAmount()) {

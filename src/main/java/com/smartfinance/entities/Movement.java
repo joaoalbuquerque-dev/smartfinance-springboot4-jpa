@@ -30,10 +30,8 @@ public class Movement implements Serializable {
     @JoinColumn(name = "account_id")
     private Account account;
 
-
     @OneToMany(mappedBy = "id.movement")
     private Set<MovementCategory> movementCategories = new HashSet<>();
-
 
     @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL)
     private List<Installment> installments = new ArrayList<>();
