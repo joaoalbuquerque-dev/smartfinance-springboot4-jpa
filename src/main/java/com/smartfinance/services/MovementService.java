@@ -49,6 +49,7 @@ public class MovementService {
         Account account = accountRepository.findById(obj.getAccount().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
 
+        calculateInstallmentAmounts(obj);
         validateInstallment(obj);
 
         if(obj.getTransactionType() == TransactionType.EXPENSE) {
@@ -190,4 +191,30 @@ public class MovementService {
             }
         }
     }
+
+    private void calculateInstallmentAmounts(Movement obj) {
+
+        double installmentAmount =
+                Math.round(
+                        obj.getAmount() / obj.getInstallments().size() * 100.0
+                ) / 100.0;
+
+        for (int i = 0; i < obj.getInstallments().size(); i++) {
+
+            Installment installment = obj.getInstallments().get(i);
+
+            if (i == obj.getInstallments().size() - 1) {
+
+                double previousAmount = installmentAmount * i;
+                double lastAmount = obj.getAmount() - previousAmount;
+
+                installment.setAmount(lastAmount);
+
+            } else {
+
+                installment.setAmount(installmentAmount);
+            }
+        }
+    }
+
 }
