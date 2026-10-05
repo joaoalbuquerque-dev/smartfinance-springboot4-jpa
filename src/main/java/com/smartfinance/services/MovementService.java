@@ -1,6 +1,9 @@
 package com.smartfinance.services;
 
-import com.smartfinance.entities.*;
+import com.smartfinance.entities.Account;
+import com.smartfinance.entities.Installment;
+import com.smartfinance.entities.Movement;
+import com.smartfinance.entities.MovementCategory;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.AccountRepository;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +54,7 @@ public class MovementService {
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
 
         calculateInstallmentAmounts(obj);
+        calculateInstallmentsDueData(obj);
         validateInstallment(obj);
 
         if(obj.getTransactionType() == TransactionType.EXPENSE) {
@@ -195,9 +200,7 @@ public class MovementService {
     private void calculateInstallmentAmounts(Movement obj) {
 
         double installmentAmount =
-                Math.round(
-                        obj.getAmount() / obj.getInstallments().size() * 100.0
-                ) / 100.0;
+                Math.round(obj.getAmount() / obj.getInstallments().size() * 100.0) / 100.0;
 
         for (int i = 0; i < obj.getInstallments().size(); i++) {
 
@@ -206,7 +209,7 @@ public class MovementService {
             if (i == obj.getInstallments().size() - 1) {
 
                 double previousAmount = installmentAmount * i;
-                double lastAmount = obj.getAmount() - previousAmount;
+                double lastAmount = Math.round((obj.getAmount() - previousAmount) * 100.0) / 100.00;
 
                 installment.setAmount(lastAmount);
 
@@ -214,6 +217,17 @@ public class MovementService {
 
                 installment.setAmount(installmentAmount);
             }
+        }
+    }
+
+    private void calculateInstallmentsDueData(Movement obj) {
+        LocalDate firstDate = obj.getInstallments().getFirst().getDueDate();
+
+        for (int i = 0; i < obj.getInstallments().size(); i++) {
+            Installment installment = obj.getInstallments().get(i);
+
+            installment.setDueDate(firstDate.plusMonths(i));
+
         }
     }
 
