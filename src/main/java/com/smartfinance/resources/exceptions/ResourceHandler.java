@@ -50,4 +50,12 @@ public class ResourceHandler {
         StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
+
+    @ExceptionHandler(InvalidPaymentException.class)
+    public ResponseEntity<StandardError> invalidPayment(InvalidPaymentException e, HttpServletRequest request) {
+        String error = "Invalid payment";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
 }

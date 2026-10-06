@@ -1,8 +1,12 @@
 package com.smartfinance.services;
 
+import com.smartfinance.entities.Installment;
 import com.smartfinance.entities.Payment;
+import com.smartfinance.entities.enums.InstallmentStatus;
+import com.smartfinance.repositories.InstallmentRepository;
 import com.smartfinance.repositories.PaymentRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
+import com.smartfinance.services.exceptions.InvalidPaymentException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,6 +20,8 @@ public class PaymentService {
 
     @Autowired
     PaymentRepository repository;
+    @Autowired
+    InstallmentRepository installmentRepository;
 
     public List<Payment> findAll() {
         return repository.findAll();
@@ -27,6 +33,12 @@ public class PaymentService {
     }
 
     public Payment insert(Payment obj) {
+        Installment installment = installmentRepository.findById(obj.getInstallment().getId())
+                .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getInstallment().getId()));
+
+                if (installment.getStatus() == InstallmentStatus.PAID) {
+                    throw new InvalidPaymentException("Installment is already paid");
+                }
         return repository.save(obj);
     }
 
