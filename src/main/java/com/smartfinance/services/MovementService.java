@@ -53,16 +53,20 @@ public class MovementService {
         Account account = accountRepository.findById(obj.getAccount().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
 
-        calculateInstallmentAmounts(obj);
-        calculateInstallmentsDueData(obj);
+        if (!obj.getInstallments().isEmpty()) {
+            calculateInstallmentAmounts(obj);
+            calculateInstallmentsDueData(obj);
+        }
         validateInstallment(obj);
 
-        if(obj.getTransactionType() == TransactionType.EXPENSE) {
-            account.setBalance(account.getBalance() - obj.getAmount());
-        }
+        if (obj.getInstallments().isEmpty()) {
 
-        else if(obj.getTransactionType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance() + obj.getAmount());
+            if (obj.getTransactionType() == TransactionType.EXPENSE) {
+                account.setBalance(account.getBalance() - obj.getAmount());
+            }
+            else if (obj.getTransactionType() == TransactionType.INCOME) {
+                account.setBalance(account.getBalance() + obj.getAmount());
+            }
         }
         repository.save(obj);
         accountRepository.save(account);
@@ -149,6 +153,10 @@ public class MovementService {
      }
 
     private void validateInstallment(Movement obj) {
+
+        if (obj.getInstallments().isEmpty()) {
+            return;
+        }
         double totalAmountInstallments = 0.0;
         Set<Integer> numbers = new HashSet<>();
 

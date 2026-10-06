@@ -21,7 +21,6 @@ public class Payment implements Serializable {
 
     @OneToOne
     @JoinColumn(name = "installment_id")
-
     private Installment installment;
 
     public Payment() {
