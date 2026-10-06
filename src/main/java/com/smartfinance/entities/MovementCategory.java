@@ -37,7 +37,6 @@ public class MovementCategory implements Serializable {
         id.setMovement(movement);
     }
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public Category getCategory() {
         return id.getCategory();
     }

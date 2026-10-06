@@ -86,6 +86,9 @@ public class Installment implements Serializable {
         return status;
     }
 
+    public void setStatus(InstallmentStatus status) { this.status = status;
+    }
+
     public Payment getPayment() {
         return payment;
     }

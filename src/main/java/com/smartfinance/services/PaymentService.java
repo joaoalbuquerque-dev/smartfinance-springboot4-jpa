@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +40,11 @@ public class PaymentService {
                 if (installment.getStatus() == InstallmentStatus.PAID) {
                     throw new InvalidPaymentException("Installment is already paid");
                 }
+
+                installment.setStatus(InstallmentStatus.PAID);
+                obj.setPaidAt(Instant.now());
+                installmentRepository.save(installment);
+
         return repository.save(obj);
     }
 

@@ -53,6 +53,7 @@ public class Category implements Serializable {
         this.movementCategories = movementCategories;
     }
 
+    @JsonIgnore
     public Set<Movement> getMovements() {
         Set<Movement> set = new HashSet<>();
         for (MovementCategory x : movementCategories) {
