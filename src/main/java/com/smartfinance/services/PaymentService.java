@@ -1,8 +1,11 @@
 package com.smartfinance.services;
 
+import com.smartfinance.entities.Account;
 import com.smartfinance.entities.Installment;
 import com.smartfinance.entities.Payment;
 import com.smartfinance.entities.enums.InstallmentStatus;
+import com.smartfinance.entities.enums.TransactionType;
+import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.repositories.InstallmentRepository;
 import com.smartfinance.repositories.PaymentRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
@@ -23,6 +26,8 @@ public class PaymentService {
     PaymentRepository repository;
     @Autowired
     InstallmentRepository installmentRepository;
+    @Autowired
+    AccountRepository accountRepository;
 
     public List<Payment> findAll() {
         return repository.findAll();
@@ -41,6 +46,14 @@ public class PaymentService {
                     throw new InvalidPaymentException("Installment is already paid");
                 }
 
+                Account account = installment.getMovement().getAccount();
+                if (installment.getMovement().getTransactionType() == TransactionType.EXPENSE) {
+                        account.setBalance(account.getBalance() - installment.getAmount());
+                } else if (installment.getMovement().getTransactionType() == TransactionType.INCOME) {
+                    account.setBalance(account.getBalance() + installment.getAmount());
+                }
+                
+                accountRepository.save(account);
                 installment.setStatus(InstallmentStatus.PAID);
                 obj.setPaidAt(Instant.now());
                 installmentRepository.save(installment);
