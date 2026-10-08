@@ -14,6 +14,7 @@ import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -38,6 +39,7 @@ public class PaymentService {
         return obj.orElseThrow(()-> new ResourceNotFoundExcepetion(id));
     }
 
+    @Transactional
     public Payment insert(Payment obj) {
         Installment installment = installmentRepository.findById(obj.getInstallment().getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getInstallment().getId()));
@@ -52,7 +54,6 @@ public class PaymentService {
                 } else if (installment.getMovement().getTransactionType() == TransactionType.INCOME) {
                     account.setBalance(account.getBalance() + installment.getAmount());
                 }
-                
                 accountRepository.save(account);
                 installment.setStatus(InstallmentStatus.PAID);
                 obj.setPaidAt(Instant.now());
