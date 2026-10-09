@@ -48,6 +48,7 @@ public class PaymentService {
                 if (installment.getStatus() == InstallmentStatus.PAID) {
                     throw new InvalidPaymentException("Installment is already paid");
                 }
+                obj.setInstallment(installment);
 
                 Account account = installment.getMovement().getAccount();
                 if (installment.getMovement().getTransactionType() == TransactionType.EXPENSE) {
