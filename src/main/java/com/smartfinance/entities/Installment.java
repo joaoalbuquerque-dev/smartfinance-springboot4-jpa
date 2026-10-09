@@ -86,12 +86,13 @@ public class Installment implements Serializable {
         return status;
     }
 
-    public void setStatus(InstallmentStatus status) { this.status = status;
-    }
+    public void setStatus(InstallmentStatus status) { this.status = status;}
 
     public Payment getPayment() {
         return payment;
     }
+
+    public void setPayment(Payment payment) { this.payment = payment;}
 
     @Override
     public boolean equals(Object o) {

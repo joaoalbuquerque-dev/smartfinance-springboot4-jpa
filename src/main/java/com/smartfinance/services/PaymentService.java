@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.entities.Account;
 import com.smartfinance.entities.Installment;
+import com.smartfinance.entities.Movement;
 import com.smartfinance.entities.Payment;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
@@ -62,14 +63,31 @@ public class PaymentService {
         return repository.save(obj);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundExcepetion(id);
-        } try {
+        Payment payment = repository.findById(id).orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+        Installment installment = payment.getInstallment();
+        installment.setPayment(null);
+        reversePaymentBalance(installment);
+        installment.setStatus(InstallmentStatus.PENDING);
+        try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    private void reversePaymentBalance(Installment installment) {
+        Movement movement = installment.getMovement();
+        Account account = movement.getAccount();
+        if (installment.getStatus() == InstallmentStatus.PAID) {
+            if (movement.getTransactionType() == TransactionType.EXPENSE) {
+                account.setBalance(account.getBalance() + installment.getAmount());
+            } else if (movement.getTransactionType() == TransactionType.INCOME) {
+                account.setBalance(account.getBalance() - installment.getAmount());
+            }
+        }
+        accountRepository.save(account);
     }
 
 

@@ -45,7 +45,7 @@ public class TestConfig implements CommandLineRunner {
         User u1 = new User(null, "Maria Brown", "maria@gmail.com", "123456");
         User u2 = new User(null, "Alex Green", "alex@gmail.com","123456");
 
-        Account a1 = new Account(null, "Nubank", 2500.00, AccountType.CHECKING, u1);
+        Account a1 = new Account(null, "Nubank", 2100.00, AccountType.CHECKING, u1);
         Account a2 = new Account(null, "Bradesco", 8500.00, AccountType.SAVINGS, u1);
         Account a3 = new Account(null, "Carteira", 350.00, AccountType.CASH, u2);
 
@@ -64,7 +64,7 @@ public class TestConfig implements CommandLineRunner {
         MovementCategory mc5 = new MovementCategory(m3, c1, 300.00);
         MovementCategory mc6 = new MovementCategory(m4, c2, 400.00);
 
-        Installment i1 = new Installment(null, 1, 400.00, LocalDate.of(2026, 10, 10), InstallmentStatus.PENDING, m1);
+        Installment i1 = new Installment(null, 1, 400.00, LocalDate.of(2026, 10, 10), InstallmentStatus.PAID, m1);
         Installment i2 = new Installment(null, 2, 400.00, LocalDate.of(2026, 11, 10), InstallmentStatus.PENDING, m1);
 
         userRepository.saveAll(Arrays.asList(u1, u2));
