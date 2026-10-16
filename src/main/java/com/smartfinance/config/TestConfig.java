@@ -41,18 +41,22 @@ public class TestConfig implements CommandLineRunner {
 
         User u1 = new User(null, "Maria Brown", "maria@gmail.com", "123456");
         User u2 = new User(null, "Alex Green", "alex@gmail.com","123456");
+        User u3 = new User(null, "Jacob Black", "jacob@gmil.com", "123456");
 
         Account a1 = new Account(null, "Nubank", 2100.00, AccountType.CHECKING, u1);
         Account a2 = new Account(null, "Bradesco", 8500.00, AccountType.SAVINGS, u1);
         Account a3 = new Account(null, "Carteira", 350.00, AccountType.CASH, u2);
+        Account a4 = new Account(null, "Inter", 1000.00, AccountType.SAVINGS, u3);
 
         Category c1 = new Category(null, "Alimentação");
         Category c2 = new Category(null, "Saúde");
+        Category c3 = new Category(null, "Financeiro");
 
         Movement m1 = new Movement(null, "Supermercado", 800.00, Instant.now(), TransactionType.EXPENSE, a1);
         Movement m2 = new Movement(null, "Farmácia", 100.00, Instant.now(), TransactionType.EXPENSE, a3);
         Movement m3 = new Movement(null, "Restaurante", 300.00, Instant.now(), TransactionType.EXPENSE, a1);
         Movement m4 = new Movement(null, "Médico", 400.00, Instant.now(), TransactionType.EXPENSE, a3);
+        Movement m5 = new Movement(null, "Pagamento", 1000.00, Instant.now(), TransactionType.INCOME, a4);
 
         MovementCategory mc1 = new MovementCategory(m1, c1, 500.00);
         MovementCategory mc2 = new MovementCategory(m1, c2, 300.00);
@@ -60,19 +64,20 @@ public class TestConfig implements CommandLineRunner {
         MovementCategory mc4 = new MovementCategory(m2, c1, 30.00);
         MovementCategory mc5 = new MovementCategory(m3, c1, 300.00);
         MovementCategory mc6 = new MovementCategory(m4, c2, 400.00);
+        MovementCategory mc7 = new MovementCategory(m5, c3, 1000.00);
 
         Installment i1 = new Installment(null, 1, 400.00, LocalDate.of(2026, 10, 10), InstallmentStatus.PENDING, m1);
         Installment i2 = new Installment(null, 2, 400.00, LocalDate.of(2026, 11, 10), InstallmentStatus.PENDING, m1);
 
-        userRepository.saveAll(Arrays.asList(u1, u2));
+        userRepository.saveAll(Arrays.asList(u1, u2, u3));
 
-        accountRepository.saveAll(Arrays.asList(a1, a2, a3));
+        accountRepository.saveAll(Arrays.asList(a1, a2, a3, a4));
 
-        categoryRepository.saveAll(Arrays.asList(c1, c2));
+        categoryRepository.saveAll(Arrays.asList(c1, c2, c3));
 
-        movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4));
+        movementRepository.saveAll(Arrays.asList(m1, m2, m3, m4, m5));
 
-        movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6));
+        movementCategoryRepository.saveAll(Arrays.asList(mc1, mc2, mc3, mc4, mc5, mc6, mc7));
 
         installmentRepository.saveAll(Arrays.asList(i1, i2));
 

@@ -1,9 +1,6 @@
 package com.smartfinance.services;
 
-import com.smartfinance.entities.Account;
-import com.smartfinance.entities.Installment;
-import com.smartfinance.entities.Movement;
-import com.smartfinance.entities.MovementCategory;
+import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.AccountRepository;
@@ -108,17 +105,24 @@ public class MovementService {
         if (entity.getTransactionType() == TransactionType.EXPENSE) {
             account.setBalance(account.getBalance() - difference);
         }
+        if (entity.getTransactionType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() + difference);
+        }
 
         for (MovementCategory mc : obj.getMovementCategories()) {
+
+            Category category = categoryRepository.findById(mc.getCategory().getId())
+                    .orElseThrow(() -> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
             MovementCategoryPK pk = new MovementCategoryPK();
             pk.setMovement(entity);
-            pk.setCategory(mc.getCategory());
+            pk.setCategory(category);
 
             MovementCategory entityMc =
                     movementCategoryRepository.findById(pk)
                             .orElseThrow(()-> new ResourceNotFoundExcepetion(id));
             entityMc.setAmount(mc.getAmount());
             movementCategoryRepository.save(entityMc);
+            repository.save(entity);
         }
         return repository.save(entity);
     }
