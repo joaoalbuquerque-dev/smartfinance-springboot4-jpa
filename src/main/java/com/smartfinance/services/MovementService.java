@@ -139,14 +139,21 @@ public class MovementService {
 
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
-        if (obj.getMovementCategories().isEmpty()) {
+        if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
             throw new InvalidMovementCategoryException("Movement must have at least one category");
         }
         for (MovementCategory mc : obj.getMovementCategories()) {
 
+            if (mc == null) {
+                throw new InvalidMovementCategoryException("Movement category cannot be null");
+            }
             if (mc.getCategory() == null) {
                 throw new InvalidMovementCategoryException("Category cannot be null");
             }
+            if (mc.getCategory().getId() == null) {
+                throw new InvalidMovementCategoryException("Category ID cannot be null");
+            }
+
           categoryRepository.findById(mc.getCategory().getId())
                     .orElseThrow(()-> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
 
