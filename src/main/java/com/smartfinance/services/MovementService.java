@@ -14,6 +14,7 @@ import com.smartfinance.services.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -89,12 +90,24 @@ public class MovementService {
         }
     }
 
+    @Transactional
     public Movement update(Long id, Movement obj) {
         if(!repository.existsById(id)) {
             throw new ResourceNotFoundExcepetion(id);
         }
         Movement entity = repository.getReferenceById(id);
+        Double oldAmount = entity.getAmount();
         updateData(entity, obj);
+        validateCategories(obj);
+        validateAmountCategories(obj);
+
+        Account account = accountRepository.findById(entity.getAccount().getId())
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(entity.getAccount().getId()));
+
+        Double difference = entity.getAmount() - oldAmount;
+        if (entity.getTransactionType() == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() - difference);
+        }
 
         for (MovementCategory mc : obj.getMovementCategories()) {
             MovementCategoryPK pk = new MovementCategoryPK();
@@ -113,7 +126,6 @@ public class MovementService {
     private void updateData(Movement entity, Movement obj) {
         entity.setDescription(obj.getDescription());
         entity.setTransactionDate(obj.getTransactionDate());
-        entity.setAccount(obj.getAccount());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());
     }

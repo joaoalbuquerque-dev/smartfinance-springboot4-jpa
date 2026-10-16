@@ -25,7 +25,6 @@ public class Movement implements Serializable {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
