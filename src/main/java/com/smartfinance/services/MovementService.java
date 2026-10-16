@@ -93,6 +93,7 @@ public class MovementService {
             throw new ResourceNotFoundExcepetion(id);
         }
         Movement entity = repository.getReferenceById(id);
+        TransactionType oldType = entity.getTransactionType();
         Double oldAmount = entity.getAmount();
         updateData(entity, obj);
         validateCategories(obj);
@@ -101,12 +102,15 @@ public class MovementService {
         Account account = accountRepository.findById(entity.getAccount().getId())
                 .orElseThrow(() -> new ResourceNotFoundExcepetion(entity.getAccount().getId()));
 
-        Double difference = entity.getAmount() - oldAmount;
-        if (entity.getTransactionType() == TransactionType.EXPENSE) {
-            account.setBalance(account.getBalance() - difference);
+        if (oldType == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() + oldAmount);
+        } else if (oldType == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() - oldAmount);
         }
-        if (entity.getTransactionType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance() + difference);
+        if (entity.getTransactionType() == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() - entity.getAmount());
+        } else if (entity.getTransactionType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() + entity.getAmount());
         }
 
         for (MovementCategory mc : obj.getMovementCategories()) {
@@ -122,7 +126,6 @@ public class MovementService {
                             .orElseThrow(()-> new ResourceNotFoundExcepetion(id));
             entityMc.setAmount(mc.getAmount());
             movementCategoryRepository.save(entityMc);
-            repository.save(entity);
         }
         return repository.save(entity);
     }
