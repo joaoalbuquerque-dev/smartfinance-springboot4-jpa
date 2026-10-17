@@ -32,7 +32,7 @@ public class Movement implements Serializable {
     @OneToMany(mappedBy = "id.movement")
     private Set<MovementCategory> movementCategories = new HashSet<>();
 
-    @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Installment> installments = new ArrayList<>();
 
     public Movement() {

@@ -1,6 +1,7 @@
 package com.smartfinance.services;
 
 import com.smartfinance.entities.*;
+import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.AccountRepository;
@@ -91,8 +92,35 @@ public class MovementService {
     public Movement update(Long id, Movement obj) {
         if(!repository.existsById(id)) {
             throw new ResourceNotFoundExcepetion(id);
+        } Movement entity = repository.getReferenceById(id);
+
+        if (entity.getInstallments().stream().anyMatch(installment -> installment.getStatus() == InstallmentStatus.PAID)) {
+            throw new InvalidInstallmentException("Cannot update a movement with paid installments"); }
+
+        entity.getInstallments().removeIf(current -> obj.getInstallments().stream().noneMatch(desired -> desired.getNumber().equals(current.getNumber())));
+        calculateInstallmentAmounts(obj);
+        calculateInstallmentsDueData(obj);
+
+        for (Installment desired : obj.getInstallments()) {
+            boolean found = false;
+            for (Installment current : entity.getInstallments()) {
+
+                if (current.getNumber().equals(desired.getNumber())) {
+                    current.setAmount(desired.getAmount());
+                    current.setDueDate(desired.getDueDate());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                Installment installment = new Installment();
+                installment.setNumber(desired.getNumber());
+                installment.setAmount(desired.getAmount());
+                installment.setDueDate(desired.getDueDate());
+                installment.setMovement(entity);
+                entity.getInstallments().add(installment);
+            }
         }
-        Movement entity = repository.getReferenceById(id);
         TransactionType oldType = entity.getTransactionType();
         Double oldAmount = entity.getAmount();
         updateData(entity, obj);
@@ -135,6 +163,30 @@ public class MovementService {
         entity.setTransactionDate(obj.getTransactionDate());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());
+    }
+
+    private void validateBasicData(Movement obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException("Movement cannot be null");
+        }
+
+        if (obj.getAmount() == null
+                || !Double.isFinite(obj.getAmount())
+                || obj.getAmount() <= 0.0) {
+            throw new InvalidAmountException("Amount must be greater than zero");
+        }
+
+        if (obj.getTransactionType() == null) {
+            throw new IllegalArgumentException("Transaction type cannot be null");
+        }
+
+        if (obj.getAccount() == null || obj.getAccount().getId() == null) {
+            throw new IllegalArgumentException("Account ID cannot be null");
+        }
+
+        if (obj.getInstallments() == null) {
+            throw new InvalidInstallmentException("Installments cannot be null");
+        }
     }
 
     private void validateCategories(Movement obj) {
