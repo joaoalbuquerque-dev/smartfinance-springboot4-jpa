@@ -200,6 +200,34 @@ public class MovementService {
         }
     }
 
+    private void prepareAndValidateInstallments(Movement obj) {
+        if (obj.getInstallments().isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < obj.getInstallments().size(); i++) {
+            Installment installment = obj.getInstallments().get(i);
+
+            if (installment == null
+                    || installment.getNumber() == null
+                    || installment.getNumber() != i + 1) {
+                throw new InvalidInstallmentException(
+                        "Installment numbers must be sequential"
+                );
+            }
+        }
+
+        if (obj.getInstallments().getFirst().getDueDate() == null) {
+            throw new InvalidInstallmentException(
+                    "First installment due date cannot be null"
+            );
+        }
+
+        calculateInstallmentAmounts(obj);
+        calculateInstallmentsDueData(obj);
+        validateInstallment(obj);
+    }
+
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
         if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
