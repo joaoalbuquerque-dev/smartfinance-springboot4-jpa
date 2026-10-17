@@ -3,7 +3,6 @@ package com.smartfinance.services;
 import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
-import com.smartfinance.entities.pk.MovementCategoryPK;
 import com.smartfinance.repositories.AccountRepository;
 import com.smartfinance.repositories.CategoryRepository;
 import com.smartfinance.repositories.MovementCategoryRepository;
@@ -44,6 +43,7 @@ public class MovementService {
        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
+    @Transactional
     public Movement insert(Movement obj) {
         if(obj.getAmount() <= 0.0) {
             throw new InvalidAmountException("Amount must be greater than zero");
