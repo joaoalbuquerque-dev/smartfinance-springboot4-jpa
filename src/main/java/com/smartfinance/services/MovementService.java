@@ -93,71 +93,42 @@ public class MovementService {
 
     @Transactional
     public Movement update(Long id, Movement obj) {
-        if(!repository.existsById(id)) {
-            throw new ResourceNotFoundExcepetion(id);
-        } Movement entity = repository.getReferenceById(id);
+        validateBasicData(obj);
 
-        if (entity.getInstallments().stream().anyMatch(installment -> installment.getStatus() == InstallmentStatus.PAID)) {
-            throw new InvalidInstallmentException("Cannot update a movement with paid installments"); }
+        Movement entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(id));
 
-        entity.getInstallments().removeIf(current -> obj.getInstallments().stream().noneMatch(desired -> desired.getNumber().equals(current.getNumber())));
-        calculateInstallmentAmounts(obj);
-        calculateInstallmentsDueData(obj);
-
-        for (Installment desired : obj.getInstallments()) {
-            boolean found = false;
-            for (Installment current : entity.getInstallments()) {
-
-                if (current.getNumber().equals(desired.getNumber())) {
-                    current.setAmount(desired.getAmount());
-                    current.setDueDate(desired.getDueDate());
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                Installment installment = new Installment();
-                installment.setNumber(desired.getNumber());
-                installment.setAmount(desired.getAmount());
-                installment.setDueDate(desired.getDueDate());
-                installment.setMovement(entity);
-                entity.getInstallments().add(installment);
-            }
-        }
-        TransactionType oldType = entity.getTransactionType();
-        Double oldAmount = entity.getAmount();
-        updateData(entity, obj);
+        validateAccountUnchanged(entity, obj);
         validateCategories(obj);
         validateAmountCategories(obj);
 
-        Account account = accountRepository.findById(entity.getAccount().getId())
-                .orElseThrow(() -> new ResourceNotFoundExcepetion(entity.getAccount().getId()));
-
-        if (oldType == TransactionType.EXPENSE) {
-            account.setBalance(account.getBalance() + oldAmount);
-        } else if (oldType == TransactionType.INCOME) {
-            account.setBalance(account.getBalance() - oldAmount);
-        }
-        if (entity.getTransactionType() == TransactionType.EXPENSE) {
-            account.setBalance(account.getBalance() - entity.getAmount());
-        } else if (entity.getTransactionType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance() + entity.getAmount());
+        if (entity.getInstallments().stream()
+                .anyMatch(installment -> installment.getStatus() == InstallmentStatus.PAID)) {
+            throw new InvalidInstallmentException(
+                    "Cannot update a movement with paid installments"
+            );
         }
 
-        for (MovementCategory mc : obj.getMovementCategories()) {
+        boolean wasInstallmentMovement = !entity.getInstallments().isEmpty();
+        TransactionType oldType = entity.getTransactionType();
+        double oldAmount = entity.getAmount();
 
-            Category category = categoryRepository.findById(mc.getCategory().getId())
-                    .orElseThrow(() -> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
-            MovementCategoryPK pk = new MovementCategoryPK();
-            pk.setMovement(entity);
-            pk.setCategory(category);
+        prepareAndValidateInstallments(obj);
+        boolean isInstallmentMovement = !obj.getInstallments().isEmpty();
 
-            MovementCategory entityMc =
-                    movementCategoryRepository.findById(pk)
-                            .orElseThrow(()-> new ResourceNotFoundExcepetion(id));
-            entityMc.setAmount(mc.getAmount());
-            movementCategoryRepository.save(entityMc);
+        if (!wasInstallmentMovement) {
+            reverseBalance(entity.getAccount(), oldType, oldAmount);
         }
+
+        updateData(entity, obj);
+        synchronizeInstallments(entity, obj);
+        synchronizeCategories(entity, obj);
+
+        if (!isInstallmentMovement) {
+            applyBalance(entity.getAccount(),
+                    entity.getTransactionType(), entity.getAmount());
+        }
+
         return repository.save(entity);
     }
 
