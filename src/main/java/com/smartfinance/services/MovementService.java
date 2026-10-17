@@ -258,6 +258,16 @@ public class MovementService {
         }
     }
 
+    private void reverseBalance(Account account,
+                                TransactionType transactionType,
+                                double amount) {
+        if (transactionType == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() + amount);
+        } else if (transactionType == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() - amount);
+        }
+    }
+
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
         if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
