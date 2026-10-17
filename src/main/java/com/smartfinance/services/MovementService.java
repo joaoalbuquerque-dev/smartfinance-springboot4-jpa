@@ -15,8 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -255,6 +258,41 @@ public class MovementService {
 
                 entity.getInstallments().add(newInstallment);
             }
+        }
+    }
+
+    private void synchronizeCategories(Movement entity, Movement obj) {
+        Map<Long, MovementCategory> currentCategories = new HashMap<>();
+
+        for (MovementCategory current : entity.getMovementCategories()) {
+            currentCategories.put(current.getCategory().getId(), current);
+        }
+
+        for (MovementCategory requested : obj.getMovementCategories()) {
+            Long categoryId = requested.getCategory().getId();
+
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new ResourceNotFoundExcepetion(categoryId));
+
+            MovementCategory current = currentCategories.remove(categoryId);
+
+            if (current != null) {
+                current.setAmount(requested.getAmount());
+            } else {
+                MovementCategory newMovementCategory =
+                        new MovementCategory(entity, category, requested.getAmount());
+
+                entity.getMovementCategories().add(newMovementCategory);
+                movementCategoryRepository.save(newMovementCategory);
+            }
+        }
+
+        List<MovementCategory> removedCategories =
+                new ArrayList<>(currentCategories.values());
+
+        if (!removedCategories.isEmpty()) {
+            entity.getMovementCategories().removeAll(removedCategories);
+            movementCategoryRepository.deleteAll(removedCategories);
         }
     }
 
