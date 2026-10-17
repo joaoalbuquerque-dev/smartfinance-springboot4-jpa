@@ -228,6 +228,36 @@ public class MovementService {
         validateInstallment(obj);
     }
 
+    private void synchronizeInstallments(Movement entity, Movement obj) {
+        entity.getInstallments().removeIf(current ->
+                obj.getInstallments().stream()
+                        .noneMatch(desired ->
+                                desired.getNumber().equals(current.getNumber()))
+        );
+
+        for (Installment desired : obj.getInstallments()) {
+            Installment current = entity.getInstallments().stream()
+                    .filter(installment ->
+                            installment.getNumber().equals(desired.getNumber()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (current != null) {
+                current.setAmount(desired.getAmount());
+                current.setDueDate(desired.getDueDate());
+            } else {
+                Installment newInstallment = new Installment();
+                newInstallment.setNumber(desired.getNumber());
+                newInstallment.setAmount(desired.getAmount());
+                newInstallment.setDueDate(desired.getDueDate());
+                newInstallment.setStatus(InstallmentStatus.PENDING);
+                newInstallment.setMovement(entity);
+
+                entity.getInstallments().add(newInstallment);
+            }
+        }
+    }
+
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
         if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
