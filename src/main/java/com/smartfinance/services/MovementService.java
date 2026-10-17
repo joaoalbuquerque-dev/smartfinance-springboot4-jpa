@@ -189,6 +189,17 @@ public class MovementService {
         }
     }
 
+    private void validateAccountUnchanged(Movement entity, Movement obj) {
+        Long currentAccountId = entity.getAccount().getId();
+        Long requestedAccountId = obj.getAccount().getId();
+
+        if (!java.util.Objects.equals(currentAccountId, requestedAccountId)) {
+            throw new IllegalArgumentException(
+                    "Changing the account of an existing movement is not allowed"
+            );
+        }
+    }
+
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
         if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
