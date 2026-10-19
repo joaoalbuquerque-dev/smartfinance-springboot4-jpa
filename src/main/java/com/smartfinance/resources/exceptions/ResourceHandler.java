@@ -28,6 +28,13 @@ public class ResourceHandler {
         return ResponseEntity.status(status).body(err);
     }
 
+    @ExceptionHandler(InvalidMovementException.class)
+    public ResponseEntity<StandardError> invalidMovement(InvalidMovementException e, HttpServletRequest request) {
+        String error = "Invalid movement";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError err = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
     @ExceptionHandler(InvalidAmountException.class)
     public ResponseEntity<StandardError> invalidAmount(InvalidAmountException e, HttpServletRequest request) {
         String error = "Invalid amount";

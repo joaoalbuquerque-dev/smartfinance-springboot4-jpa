@@ -14,13 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class MovementService {
@@ -151,11 +145,11 @@ public class MovementService {
         }
 
         if (obj.getTransactionType() == null) {
-            throw new IllegalArgumentException("Transaction type cannot be null");
+            throw new InvalidMovementException("Transaction type cannot be null");
         }
 
         if (obj.getAccount() == null || obj.getAccount().getId() == null) {
-            throw new IllegalArgumentException("Account ID cannot be null");
+            throw new InvalidMovementException("Account ID cannot be null");
         }
 
         if (obj.getInstallments() == null) {
@@ -167,8 +161,8 @@ public class MovementService {
         Long currentAccountId = entity.getAccount().getId();
         Long requestedAccountId = obj.getAccount().getId();
 
-        if (!java.util.Objects.equals(currentAccountId, requestedAccountId)) {
-            throw new IllegalArgumentException(
+        if (!Objects.equals(currentAccountId, requestedAccountId)) {
+            throw new InvalidMovementException(
                     "Changing the account of an existing movement is not allowed"
             );
         }
