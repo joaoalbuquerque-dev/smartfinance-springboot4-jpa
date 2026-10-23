@@ -135,7 +135,7 @@ public class MovementService {
 
     private void validateBasicData(Movement obj) {
         if (obj == null) {
-            throw new IllegalArgumentException("Movement cannot be null");
+            throw new InvalidMovementException("Movement cannot be null");
         }
 
         if (obj.getAmount() == null
