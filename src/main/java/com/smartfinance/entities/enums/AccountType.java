@@ -1,8 +1,5 @@
 package com.smartfinance.entities.enums;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import tools.jackson.databind.deser.ValueInstantiator;
-
 public enum AccountType {
 
     CHECKING(1),
@@ -11,7 +8,7 @@ public enum AccountType {
 
     private final int code;
 
-    private AccountType(int code) {
+    AccountType(int code) {
         this.code = code;
     }
 
@@ -19,9 +16,12 @@ public enum AccountType {
         return code;
     }
 
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static AccountType valueOf(int code) {
-        for(AccountType value : AccountType.values()) {
+    public static AccountType fromCode(Integer code) {
+        if (code == null) {
+            throw new IllegalArgumentException("AccountType code cannot be null");
+        }
+
+        for (AccountType value : AccountType.values()) {
             if (value.getCode() == code) {
                 return value;
             }

@@ -65,7 +65,7 @@ public class Account implements Serializable {
     }
 
     public AccountType getAccountType() {
-        return AccountType.valueOf(accountType);
+        return AccountType.fromCode(accountType);
     }
 
     public void setAccountType(AccountType accountType) {
