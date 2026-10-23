@@ -1,10 +1,12 @@
 package com.smartfinance.services;
 
+import com.smartfinance.dto.AccountRequestDTO;
 import com.smartfinance.entities.Account;
+import com.smartfinance.entities.User;
 import com.smartfinance.repositories.AccountRepository;
+import com.smartfinance.repositories.UserRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,8 @@ public class AccountService {
 
     @Autowired
     private AccountRepository repository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<Account> findAll() {
         return repository.findAll();
@@ -27,8 +31,11 @@ public class AccountService {
        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
-    public Account insert(Account obj) {
-        return repository.save(obj);
+    public Account insert(AccountRequestDTO dto) {
+        User user = findUserById(dto.userId());
+        Account account = new Account(null, dto.bank(), dto.balance(),
+                dto.accountType(), user);
+        return repository.save(account);
     }
 
     public void delete(Long id) {
@@ -42,20 +49,22 @@ public class AccountService {
         }
     }
 
-    public Account update(Long id, Account obj) {
-        try {
-            Account entity = repository.getReferenceById(id);
-            updateData(entity, obj);
-            return repository.save(entity);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
-
+    public Account update(Long id, AccountRequestDTO dto) {
+        Account entity = findById(id);
+        User user = findUserById(dto.userId());
+        updateData(entity, dto, user);
+        return repository.save(entity);
     }
 
-    private void updateData(Account entity, Account obj) {
-        entity.setBank(obj.getBank());
-        entity.setBalance(obj.getBalance());
-        entity.setAccountType(obj.getAccountType());
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(userId));
+    }
+
+    private void updateData(Account entity, AccountRequestDTO dto, User user) {
+        entity.setBank(dto.bank());
+        entity.setBalance(dto.balance());
+        entity.setAccountType(dto.accountType());
+        entity.setUser(user);
     }
 }

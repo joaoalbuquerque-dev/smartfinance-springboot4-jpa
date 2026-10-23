@@ -1,5 +1,7 @@
 package com.smartfinance.resources;
 
+import com.smartfinance.dto.MovementRequestDTO;
+import com.smartfinance.dto.MovementResponseDTO;
 import com.smartfinance.entities.Movement;
 import com.smartfinance.services.MovementService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,23 +20,25 @@ public class MovementResource {
     private MovementService service;
 
     @GetMapping
-    public ResponseEntity<List<Movement>> findAll() {
+    public ResponseEntity<List<MovementResponseDTO>> findAll() {
 
-        List<Movement> list = service.findAll();
+        List<MovementResponseDTO> list = service.findAll().stream()
+                .map(MovementResponseDTO::new)
+                .toList();
         return ResponseEntity.ok().body(list);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Movement> findById(@PathVariable Long id) {
+    public ResponseEntity<MovementResponseDTO> findById(@PathVariable Long id) {
         Movement obj = service.findById(id);
-        return ResponseEntity.ok().body(obj);
+        return ResponseEntity.ok().body(new MovementResponseDTO(obj));
     }
 
     @PostMapping
-    public ResponseEntity<Movement> insert(@RequestBody Movement obj) {
-        obj = service.insert(obj);
+    public ResponseEntity<MovementResponseDTO> insert(@RequestBody MovementRequestDTO dto) {
+        Movement obj = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(obj);
+        return ResponseEntity.created(uri).body(new MovementResponseDTO(obj));
     }
 
     @DeleteMapping(value = "/{id}")
@@ -44,8 +48,8 @@ public class MovementResource {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Movement> update(@PathVariable Long id, @RequestBody Movement obj) {
-        obj = service.update(id, obj);
-        return ResponseEntity.ok().body(obj);
+    public ResponseEntity<MovementResponseDTO> update(@PathVariable Long id, @RequestBody MovementRequestDTO dto) {
+        Movement obj = service.update(id, dto);
+        return ResponseEntity.ok().body(new MovementResponseDTO(obj));
     }
 }

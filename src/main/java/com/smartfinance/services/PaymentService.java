@@ -1,5 +1,6 @@
 package com.smartfinance.services;
 
+import com.smartfinance.dto.PaymentRequestDTO;
 import com.smartfinance.entities.Account;
 import com.smartfinance.entities.Installment;
 import com.smartfinance.entities.Movement;
@@ -41,14 +42,20 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment insert(Payment obj) {
-        Installment installment = installmentRepository.findById(obj.getInstallment().getId())
-                .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getInstallment().getId()));
+    public Payment insert(PaymentRequestDTO dto) {
+        if (dto == null || dto.installmentId() == null) {
+            throw new InvalidPaymentException("Installment ID cannot be null");
+        }
+
+        Installment installment = installmentRepository.findById(dto.installmentId())
+                .orElseThrow(()-> new ResourceNotFoundExcepetion(dto.installmentId()));
+
+        Payment payment = new Payment();
 
                 if (installment.getStatus() == InstallmentStatus.PAID) {
                     throw new InvalidPaymentException("Installment is already paid");
                 }
-                obj.setInstallment(installment);
+                payment.setInstallment(installment);
 
                 Account account = installment.getMovement().getAccount();
                 if (installment.getMovement().getTransactionType() == TransactionType.EXPENSE) {
@@ -58,10 +65,10 @@ public class PaymentService {
                 }
                 accountRepository.save(account);
                 installment.setStatus(InstallmentStatus.PAID);
-                obj.setPaidAt(Instant.now());
+                payment.setPaidAt(Instant.now());
                 installmentRepository.save(installment);
 
-        return repository.save(obj);
+        return repository.save(payment);
     }
 
     @Transactional

@@ -1,5 +1,8 @@
 package com.smartfinance.services;
 
+import com.smartfinance.dto.InstallmentRequestDTO;
+import com.smartfinance.dto.MovementCategoryRequestDTO;
+import com.smartfinance.dto.MovementRequestDTO;
 import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
@@ -38,16 +41,15 @@ public class MovementService {
     }
 
     @Transactional
-    public Movement insert(Movement obj) {
-        if(obj.getAmount() <= 0.0) {
-            throw new InvalidAmountException("Amount must be greater than zero");
-        }
+    public Movement insert(MovementRequestDTO dto) {
+        Movement obj = fromRequest(dto);
+
+        validateBasicData(obj);
 
         validateCategories(obj);
         validateAmountCategories(obj);
 
-        Account account = accountRepository.findById(obj.getAccount().getId())
-                .orElseThrow(()-> new ResourceNotFoundExcepetion(obj.getAccount().getId()));
+        Account account = obj.getAccount();
 
         if (!obj.getInstallments().isEmpty()) {
             calculateInstallmentAmounts(obj);
@@ -86,7 +88,9 @@ public class MovementService {
     }
 
     @Transactional
-    public Movement update(Long id, Movement obj) {
+    public Movement update(Long id, MovementRequestDTO dto) {
+        Movement obj = fromRequest(dto);
+
         validateBasicData(obj);
 
         Movement entity = repository.findById(id)
@@ -124,6 +128,76 @@ public class MovementService {
         }
 
         return repository.save(entity);
+    }
+
+    private Movement fromRequest(MovementRequestDTO dto) {
+        if (dto == null) {
+            throw new InvalidMovementException("Movement cannot be null");
+        }
+
+        Account account = findAccountById(dto.accountId());
+        Movement movement = new Movement(null, dto.description(), dto.amount(),
+                dto.transactionDate(), dto.transactionType(), account);
+
+        addCategories(movement, dto.categories());
+        addInstallments(movement, dto.installments());
+
+        return movement;
+    }
+
+    private Account findAccountById(Long accountId) {
+        if (accountId == null) {
+            throw new InvalidMovementException("Account ID cannot be null");
+        }
+
+        return accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(accountId));
+    }
+
+    private void addCategories(Movement movement,
+                               Set<MovementCategoryRequestDTO> categories) {
+        if (categories == null) {
+            return;
+        }
+
+        for (MovementCategoryRequestDTO categoryRequest : categories) {
+            if (categoryRequest == null || categoryRequest.categoryId() == null) {
+                throw new InvalidMovementCategoryException(
+                        "Category ID cannot be null"
+                );
+            }
+
+            Category category = categoryRepository
+                    .findById(categoryRequest.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundExcepetion(
+                            categoryRequest.categoryId()
+                    ));
+
+            movement.getMovementCategories().add(
+                    new MovementCategory(movement, category,
+                            categoryRequest.amount())
+            );
+        }
+    }
+
+    private void addInstallments(Movement movement,
+                                 List<InstallmentRequestDTO> installments) {
+        if (installments == null) {
+            return;
+        }
+
+        for (InstallmentRequestDTO installmentRequest : installments) {
+            if (installmentRequest == null) {
+                throw new InvalidInstallmentException(
+                        "Installment cannot be null"
+                );
+            }
+
+            movement.getInstallments().add(new Installment(null,
+                    installmentRequest.number(), null,
+                    installmentRequest.dueDate(), InstallmentStatus.PENDING,
+                    movement));
+        }
     }
 
     private void updateData(Movement entity, Movement obj) {

@@ -1,10 +1,10 @@
 package com.smartfinance.services;
 
+import com.smartfinance.dto.UserRequestDTO;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.UserRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,8 +27,9 @@ public class UserService {
        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
-    public User insert(User obj) {
-        return repository.save(obj);
+    public User insert(UserRequestDTO dto) {
+        User user = new User(null, dto.name(), dto.email(), dto.password());
+        return repository.save(user);
     }
 
     public void delete(Long id) {
@@ -42,18 +43,18 @@ public class UserService {
        }
     }
 
-    public User update(Long id, User obj) {
-        try {
-            User entity = repository.getReferenceById(id);
-            updateData(entity, obj);
-            return repository.save(entity);
-        }catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
+    public User update(Long id, UserRequestDTO dto) {
+        User entity = findById(id);
+        updateData(entity, dto);
+        return repository.save(entity);
     }
 
-    private void updateData(User entity, User obj) {
-        entity.setName(obj.getName());
-        entity.setEmail(obj.getEmail());
+    private void updateData(User entity, UserRequestDTO dto) {
+        entity.setName(dto.name());
+        entity.setEmail(dto.email());
+
+        if (dto.password() != null && !dto.password().isBlank()) {
+            entity.setPassword(dto.password());
+        }
     }
 }
