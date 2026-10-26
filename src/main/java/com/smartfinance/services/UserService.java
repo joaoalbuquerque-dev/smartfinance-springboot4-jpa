@@ -1,6 +1,7 @@
 package com.smartfinance.services;
 
 import com.smartfinance.dto.UserRequestDTO;
+import com.smartfinance.dto.UserResponseDTO;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.UserRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
@@ -8,6 +9,7 @@ import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,24 +20,27 @@ public class UserService {
     @Autowired
     private UserRepository repository;
 
-    public List<User> findAll() {
-        return repository.findAll();
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(UserResponseDTO::new)
+                .toList();
     }
 
-    public User findById(Long id) {
-       Optional<User> obj = repository.findById(id);
-       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+    @Transactional(readOnly = true)
+    public UserResponseDTO findById(Long id) {
+       return new UserResponseDTO(findEntityById(id));
     }
 
-    public User insert(UserRequestDTO dto) {
+    @Transactional
+    public UserResponseDTO insert(UserRequestDTO dto) {
         User user = new User(null, dto.name(), dto.email(), dto.password());
-        return repository.save(user);
+        return new UserResponseDTO(repository.save(user));
     }
 
+    @Transactional
     public void delete(Long id) {
-       if(!repository.existsById(id)) {
-           throw new ResourceNotFoundExcepetion(id);
-       }
+       findEntityById(id);
        try {
            repository.deleteById(id);
        } catch (DataIntegrityViolationException e) {
@@ -43,10 +48,16 @@ public class UserService {
        }
     }
 
-    public User update(Long id, UserRequestDTO dto) {
-        User entity = findById(id);
+    @Transactional
+    public UserResponseDTO update(Long id, UserRequestDTO dto) {
+        User entity = findEntityById(id);
         updateData(entity, dto);
-        return repository.save(entity);
+        return new UserResponseDTO(repository.save(entity));
+    }
+
+    private User findEntityById(Long id) {
+        Optional<User> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     private void updateData(User entity, UserRequestDTO dto) {

@@ -1,6 +1,7 @@
 package com.smartfinance.services;
 
 import com.smartfinance.dto.PaymentRequestDTO;
+import com.smartfinance.dto.PaymentResponseDTO;
 import com.smartfinance.entities.Account;
 import com.smartfinance.entities.Installment;
 import com.smartfinance.entities.Movement;
@@ -32,17 +33,20 @@ public class PaymentService {
     @Autowired
     AccountRepository accountRepository;
 
-    public List<Payment> findAll() {
-        return repository.findAll();
+    @Transactional(readOnly = true)
+    public List<PaymentResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(PaymentResponseDTO::new)
+                .toList();
     }
 
-    public Payment findById(Long id) {
-        Optional<Payment> obj = repository.findById(id);
-        return obj.orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+    @Transactional(readOnly = true)
+    public PaymentResponseDTO findById(Long id) {
+        return new PaymentResponseDTO(findEntityById(id));
     }
 
     @Transactional
-    public Payment insert(PaymentRequestDTO dto) {
+    public PaymentResponseDTO insert(PaymentRequestDTO dto) {
         if (dto == null || dto.installmentId() == null) {
             throw new InvalidPaymentException("Installment ID cannot be null");
         }
@@ -68,12 +72,12 @@ public class PaymentService {
                 payment.setPaidAt(Instant.now());
                 installmentRepository.save(installment);
 
-        return repository.save(payment);
+        return new PaymentResponseDTO(repository.save(payment));
     }
 
     @Transactional
     public void delete(Long id) {
-        Payment payment = repository.findById(id).orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+        Payment payment = findEntityById(id);
         Installment installment = payment.getInstallment();
         installment.setPayment(null);
         reversePaymentBalance(installment);
@@ -96,6 +100,11 @@ public class PaymentService {
             }
         }
         accountRepository.save(account);
+    }
+
+    private Payment findEntityById(Long id) {
+        Optional<Payment> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
 

@@ -2,7 +2,6 @@ package com.smartfinance.resources;
 
 import com.smartfinance.dto.PaymentRequestDTO;
 import com.smartfinance.dto.PaymentResponseDTO;
-import com.smartfinance.entities.Payment;
 import com.smartfinance.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,22 +20,19 @@ public class PaymentResource {
 
     @GetMapping
     public ResponseEntity<List<PaymentResponseDTO>> findAll() {
-        List<PaymentResponseDTO> payments = service.findAll().stream()
-                .map(PaymentResponseDTO::new)
-                .toList();
-        return ResponseEntity.ok(payments);
+        return ResponseEntity.ok(service.findAll());
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<PaymentResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(new PaymentResponseDTO(service.findById(id)));
+        return ResponseEntity.ok(service.findById(id));
     }
 
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> insert(@RequestBody PaymentRequestDTO dto) {
-        Payment obj = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(new PaymentResponseDTO(obj));
+        PaymentResponseDTO response = service.insert(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
     @DeleteMapping(value = "/{id}")

@@ -1,6 +1,7 @@
 package com.smartfinance.services;
 
 import com.smartfinance.dto.CategoryRequestDTO;
+import com.smartfinance.dto.CategoryResponseDTO;
 import com.smartfinance.entities.Category;
 import com.smartfinance.repositories.CategoryRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
@@ -8,6 +9,7 @@ import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,23 +20,27 @@ public class CategoryService {
     @Autowired
     private CategoryRepository repository;
 
-    public List<Category> findAll() {
-        return repository.findAll();
+    @Transactional(readOnly = true)
+    public List<CategoryResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(CategoryResponseDTO::new)
+                .toList();
     }
 
-    public Category findById(Long id) {
-       Optional<Category> obj = repository.findById(id);
-       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+    @Transactional(readOnly = true)
+    public CategoryResponseDTO findById(Long id) {
+       return new CategoryResponseDTO(findEntityById(id));
     }
 
-    public Category insert(CategoryRequestDTO dto) {
-        return repository.save(new Category(null, dto.name()));
+    @Transactional
+    public CategoryResponseDTO insert(CategoryRequestDTO dto) {
+        Category category = repository.save(new Category(null, dto.name()));
+        return new CategoryResponseDTO(category);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if(!repository.existsById(id)) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
+        findEntityById(id);
         try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
@@ -42,10 +48,16 @@ public class CategoryService {
         }
     }
 
-    public Category update(Long id, CategoryRequestDTO dto) {
-        Category entity = findById(id);
+    @Transactional
+    public CategoryResponseDTO update(Long id, CategoryRequestDTO dto) {
+        Category entity = findEntityById(id);
         updateData(entity, dto);
-        return repository.save(entity);
+        return new CategoryResponseDTO(repository.save(entity));
+    }
+
+    private Category findEntityById(Long id) {
+        Optional<Category> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     private void updateData(Category entity, CategoryRequestDTO dto) {

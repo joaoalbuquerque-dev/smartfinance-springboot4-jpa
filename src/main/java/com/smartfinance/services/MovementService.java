@@ -3,6 +3,7 @@ package com.smartfinance.services;
 import com.smartfinance.dto.InstallmentRequestDTO;
 import com.smartfinance.dto.MovementCategoryRequestDTO;
 import com.smartfinance.dto.MovementRequestDTO;
+import com.smartfinance.dto.MovementResponseDTO;
 import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
@@ -31,17 +32,20 @@ public class MovementService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public List<Movement> findAll() {
-        return repository.findAll();
+    @Transactional(readOnly = true)
+    public List<MovementResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(MovementResponseDTO::new)
+                .toList();
     }
 
-    public Movement findById(Long id) {
-       Optional<Movement> obj = repository.findById(id);
-       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+    @Transactional(readOnly = true)
+    public MovementResponseDTO findById(Long id) {
+       return new MovementResponseDTO(findEntityById(id));
     }
 
     @Transactional
-    public Movement insert(MovementRequestDTO dto) {
+    public MovementResponseDTO insert(MovementRequestDTO dto) {
         Movement obj = fromRequest(dto);
 
         validateBasicData(obj);
@@ -73,13 +77,12 @@ public class MovementService {
             mc.setMovement(obj);
             movementCategoryRepository.save(mc);
          }
-        return obj;
+        return new MovementResponseDTO(obj);
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
+        findEntityById(id);
         try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
@@ -88,13 +91,12 @@ public class MovementService {
     }
 
     @Transactional
-    public Movement update(Long id, MovementRequestDTO dto) {
+    public MovementResponseDTO update(Long id, MovementRequestDTO dto) {
         Movement obj = fromRequest(dto);
 
         validateBasicData(obj);
 
-        Movement entity = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+        Movement entity = findEntityById(id);
 
         validateAccountUnchanged(entity, obj);
         validateCategories(obj);
@@ -127,7 +129,12 @@ public class MovementService {
                     entity.getTransactionType(), entity.getAmount());
         }
 
-        return repository.save(entity);
+        return new MovementResponseDTO(repository.save(entity));
+    }
+
+    private Movement findEntityById(Long id) {
+        Optional<Movement> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     private Movement fromRequest(MovementRequestDTO dto) {

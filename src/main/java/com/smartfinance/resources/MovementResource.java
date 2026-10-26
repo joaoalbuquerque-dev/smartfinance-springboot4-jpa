@@ -2,7 +2,6 @@ package com.smartfinance.resources;
 
 import com.smartfinance.dto.MovementRequestDTO;
 import com.smartfinance.dto.MovementResponseDTO;
-import com.smartfinance.entities.Movement;
 import com.smartfinance.services.MovementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,23 +21,19 @@ public class MovementResource {
     @GetMapping
     public ResponseEntity<List<MovementResponseDTO>> findAll() {
 
-        List<MovementResponseDTO> list = service.findAll().stream()
-                .map(MovementResponseDTO::new)
-                .toList();
-        return ResponseEntity.ok().body(list);
+        return ResponseEntity.ok().body(service.findAll());
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<MovementResponseDTO> findById(@PathVariable Long id) {
-        Movement obj = service.findById(id);
-        return ResponseEntity.ok().body(new MovementResponseDTO(obj));
+        return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
     public ResponseEntity<MovementResponseDTO> insert(@RequestBody MovementRequestDTO dto) {
-        Movement obj = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(new MovementResponseDTO(obj));
+        MovementResponseDTO response = service.insert(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -49,7 +44,6 @@ public class MovementResource {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<MovementResponseDTO> update(@PathVariable Long id, @RequestBody MovementRequestDTO dto) {
-        Movement obj = service.update(id, dto);
-        return ResponseEntity.ok().body(new MovementResponseDTO(obj));
+        return ResponseEntity.ok().body(service.update(id, dto));
     }
 }

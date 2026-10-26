@@ -2,7 +2,6 @@ package com.smartfinance.resources;
 
 import com.smartfinance.dto.AccountRequestDTO;
 import com.smartfinance.dto.AccountResponseDTO;
-import com.smartfinance.entities.Account;
 import com.smartfinance.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,23 +21,19 @@ public class AccountResource {
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> findAll() {
 
-        List<AccountResponseDTO> list = service.findAll().stream()
-                .map(AccountResponseDTO::new)
-                .toList();
-        return ResponseEntity.ok().body(list);
+        return ResponseEntity.ok().body(service.findAll());
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable Long id) {
-        Account obj = service.findById(id);
-        return ResponseEntity.ok().body(new AccountResponseDTO(obj));
+        return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
     public ResponseEntity<AccountResponseDTO> insert(@RequestBody AccountRequestDTO dto) {
-        Account obj = service.insert(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
-        return ResponseEntity.created(uri).body(new AccountResponseDTO(obj));
+        AccountResponseDTO response = service.insert(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -49,7 +44,6 @@ public class AccountResource {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<AccountResponseDTO> update(@PathVariable Long id, @RequestBody AccountRequestDTO dto) {
-        Account obj = service.update(id, dto);
-        return ResponseEntity.ok().body(new AccountResponseDTO(obj));
+        return ResponseEntity.ok().body(service.update(id, dto));
     }
 }

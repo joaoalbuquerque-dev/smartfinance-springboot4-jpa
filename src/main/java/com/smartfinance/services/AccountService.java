@@ -1,6 +1,7 @@
 package com.smartfinance.services;
 
 import com.smartfinance.dto.AccountRequestDTO;
+import com.smartfinance.dto.AccountResponseDTO;
 import com.smartfinance.entities.Account;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.AccountRepository;
@@ -10,6 +11,7 @@ import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,26 +24,29 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<Account> findAll() {
-        return repository.findAll();
+    @Transactional(readOnly = true)
+    public List<AccountResponseDTO> findAll() {
+        return repository.findAll().stream()
+                .map(AccountResponseDTO::new)
+                .toList();
     }
 
-    public Account findById(Long id) {
-       Optional<Account> obj = repository.findById(id);
-       return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+    @Transactional(readOnly = true)
+    public AccountResponseDTO findById(Long id) {
+       return new AccountResponseDTO(findEntityById(id));
     }
 
-    public Account insert(AccountRequestDTO dto) {
+    @Transactional
+    public AccountResponseDTO insert(AccountRequestDTO dto) {
         User user = findUserById(dto.userId());
         Account account = new Account(null, dto.bank(), dto.balance(),
                 dto.accountType(), user);
-        return repository.save(account);
+        return new AccountResponseDTO(repository.save(account));
     }
 
+    @Transactional
     public void delete(Long id) {
-        if(!repository.existsById(id)) {
-            throw new ResourceNotFoundExcepetion(id);
-        }
+        findEntityById(id);
         try {
             repository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
@@ -49,11 +54,17 @@ public class AccountService {
         }
     }
 
-    public Account update(Long id, AccountRequestDTO dto) {
-        Account entity = findById(id);
+    @Transactional
+    public AccountResponseDTO update(Long id, AccountRequestDTO dto) {
+        Account entity = findEntityById(id);
         User user = findUserById(dto.userId());
         updateData(entity, dto, user);
-        return repository.save(entity);
+        return new AccountResponseDTO(repository.save(entity));
+    }
+
+    private Account findEntityById(Long id) {
+        Optional<Account> obj = repository.findById(id);
+        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     private User findUserById(Long userId) {
