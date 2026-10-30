@@ -1,4 +1,4 @@
-package com.smartfinance.resources.exceptions;
+package com.smartfinance.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

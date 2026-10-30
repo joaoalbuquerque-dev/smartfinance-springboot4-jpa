@@ -1,5 +1,6 @@
 package com.smartfinance.resources.exceptions;
 
+import com.smartfinance.dto.StandardError;
 import com.smartfinance.services.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
