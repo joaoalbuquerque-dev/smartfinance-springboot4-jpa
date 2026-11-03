@@ -1,8 +1,9 @@
-package com.smartfinance.resources;
+package com.smartfinance.controllers;
 
-import com.smartfinance.dto.CategoryRequestDTO;
-import com.smartfinance.dto.CategoryResponseDTO;
-import com.smartfinance.services.CategoryService;
+import com.smartfinance.dto.UserRequestDTO;
+import com.smartfinance.dto.UserResponseDTO;
+import com.smartfinance.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,26 +13,26 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/categories")
-public class CategoryResource {
+@RequestMapping(value = "/users")
+public class UserResource {
 
     @Autowired
-    private CategoryService service;
+    private UserService service;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponseDTO>> findAll() {
+    public ResponseEntity<List<UserResponseDTO>> findAll() {
 
         return ResponseEntity.ok().body(service.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> insert(@RequestBody CategoryRequestDTO dto) {
-        CategoryResponseDTO response = service.insert(dto);
+    public ResponseEntity<UserResponseDTO> insert(@Valid @RequestBody UserRequestDTO dto) {
+        UserResponseDTO response = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
@@ -43,7 +44,7 @@ public class CategoryResource {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id, @RequestBody CategoryRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
     }
 }

@@ -1,8 +1,9 @@
-package com.smartfinance.resources;
+package com.smartfinance.controllers;
 
 import com.smartfinance.dto.PaymentRequestDTO;
 import com.smartfinance.dto.PaymentResponseDTO;
 import com.smartfinance.services.PaymentService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class PaymentResource {
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponseDTO> insert(@RequestBody PaymentRequestDTO dto) {
+    public ResponseEntity<PaymentResponseDTO> insert(@Valid @RequestBody PaymentRequestDTO dto) {
         PaymentResponseDTO response = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);

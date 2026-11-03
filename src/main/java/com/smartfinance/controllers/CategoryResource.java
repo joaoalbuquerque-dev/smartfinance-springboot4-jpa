@@ -1,8 +1,9 @@
-package com.smartfinance.resources;
+package com.smartfinance.controllers;
 
-import com.smartfinance.dto.MovementRequestDTO;
-import com.smartfinance.dto.MovementResponseDTO;
-import com.smartfinance.services.MovementService;
+import com.smartfinance.dto.CategoryRequestDTO;
+import com.smartfinance.dto.CategoryResponseDTO;
+import com.smartfinance.services.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,26 +13,26 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/movements")
-public class MovementResource {
+@RequestMapping(value = "/categories")
+public class CategoryResource {
 
     @Autowired
-    private MovementService service;
+    private CategoryService service;
 
     @GetMapping
-    public ResponseEntity<List<MovementResponseDTO>> findAll() {
+    public ResponseEntity<List<CategoryResponseDTO>> findAll() {
 
         return ResponseEntity.ok().body(service.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<MovementResponseDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<MovementResponseDTO> insert(@RequestBody MovementRequestDTO dto) {
-        MovementResponseDTO response = service.insert(dto);
+    public ResponseEntity<CategoryResponseDTO> insert(@Valid @RequestBody CategoryRequestDTO dto) {
+        CategoryResponseDTO response = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
     }
@@ -43,7 +44,7 @@ public class MovementResource {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<MovementResponseDTO> update(@PathVariable Long id, @RequestBody MovementRequestDTO dto) {
+    public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
     }
 }
