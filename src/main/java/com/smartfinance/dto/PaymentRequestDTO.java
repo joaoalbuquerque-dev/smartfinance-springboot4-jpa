@@ -1,4 +1,10 @@
 package com.smartfinance.dto;
 
-public record PaymentRequestDTO(Long installmentId) {
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
+public record PaymentRequestDTO(
+        @NotNull(message = "Installment ID is required")
+        @Positive(message = "Installment ID must be greater than zero")
+        Long installmentId) {
 }

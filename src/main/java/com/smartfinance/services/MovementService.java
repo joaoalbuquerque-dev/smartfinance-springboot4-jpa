@@ -49,8 +49,6 @@ public class MovementService {
     public MovementResponseDTO insert(MovementRequestDTO dto) {
         Movement obj = fromRequest(dto);
 
-        validateBasicData(obj);
-
         validateCategories(obj);
         validateAmountCategories(obj);
 
@@ -94,8 +92,6 @@ public class MovementService {
     @Transactional
     public MovementResponseDTO update(Long id, MovementRequestDTO dto) {
         Movement obj = fromRequest(dto);
-
-        validateBasicData(obj);
 
         Movement entity = findEntityById(id);
 
@@ -154,10 +150,6 @@ public class MovementService {
     }
 
     private Account findAccountById(Long accountId) {
-        if (accountId == null) {
-            throw new InvalidMovementException("Account ID cannot be null");
-        }
-
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new ResourceNotFoundExcepetion(accountId));
     }
@@ -169,12 +161,6 @@ public class MovementService {
         }
 
         for (MovementCategoryRequestDTO categoryRequest : categories) {
-            if (categoryRequest == null || categoryRequest.categoryId() == null) {
-                throw new InvalidMovementCategoryException(
-                        "Category ID cannot be null"
-                );
-            }
-
             Category category = categoryRepository
                     .findById(categoryRequest.categoryId())
                     .orElseThrow(() -> new ResourceNotFoundExcepetion(
@@ -195,12 +181,6 @@ public class MovementService {
         }
 
         for (InstallmentRequestDTO installmentRequest : installments) {
-            if (installmentRequest == null) {
-                throw new InvalidInstallmentException(
-                        "Installment cannot be null"
-                );
-            }
-
             movement.getInstallments().add(new Installment(null,
                     installmentRequest.number(), null,
                     installmentRequest.dueDate(), InstallmentStatus.PENDING,
@@ -213,30 +193,6 @@ public class MovementService {
         entity.setTransactionDate(obj.getTransactionDate());
         entity.setTransactionType(obj.getTransactionType());
         entity.setAmount(obj.getAmount());
-    }
-
-    private void validateBasicData(Movement obj) {
-        if (obj == null) {
-            throw new InvalidMovementException("Movement cannot be null");
-        }
-
-        if (obj.getAmount() == null
-                || !Double.isFinite(obj.getAmount())
-                || obj.getAmount() <= 0.0) {
-            throw new InvalidAmountException("Amount must be greater than zero");
-        }
-
-        if (obj.getTransactionType() == null) {
-            throw new InvalidMovementException("Transaction type cannot be null");
-        }
-
-        if (obj.getAccount() == null || obj.getAccount().getId() == null) {
-            throw new InvalidMovementException("Account ID cannot be null");
-        }
-
-        if (obj.getInstallments() == null) {
-            throw new InvalidInstallmentException("Installments cannot be null");
-        }
     }
 
     private void validateAccountUnchanged(Movement entity, Movement obj) {
@@ -253,24 +209,6 @@ public class MovementService {
     private void prepareAndValidateInstallments(Movement obj) {
         if (obj.getInstallments().isEmpty()) {
             return;
-        }
-
-        for (int i = 0; i < obj.getInstallments().size(); i++) {
-            Installment installment = obj.getInstallments().get(i);
-
-            if (installment == null
-                    || installment.getNumber() == null
-                    || installment.getNumber() != i + 1) {
-                throw new InvalidInstallmentException(
-                        "Installment numbers must be sequential"
-                );
-            }
-        }
-
-        if (obj.getInstallments().getFirst().getDueDate() == null) {
-            throw new InvalidInstallmentException(
-                    "First installment due date cannot be null"
-            );
         }
 
         calculateInstallmentAmounts(obj);
@@ -365,21 +303,7 @@ public class MovementService {
 
     private void validateCategories(Movement obj) {
         Set<Long> categoryIds = new HashSet<>();
-        if (obj.getMovementCategories() == null || obj.getMovementCategories().isEmpty()) {
-            throw new InvalidMovementCategoryException("Movement must have at least one category");
-        }
         for (MovementCategory mc : obj.getMovementCategories()) {
-
-            if (mc == null) {
-                throw new InvalidMovementCategoryException("Movement category cannot be null");
-            }
-            if (mc.getCategory() == null) {
-                throw new InvalidMovementCategoryException("Category cannot be null");
-            }
-            if (mc.getCategory().getId() == null) {
-                throw new InvalidMovementCategoryException("Category ID cannot be null");
-            }
-
           categoryRepository.findById(mc.getCategory().getId())
                     .orElseThrow(()-> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
 
@@ -393,10 +317,6 @@ public class MovementService {
         double totalCategories = 0.0;
 
         for (MovementCategory mc : obj.getMovementCategories()) {
-
-            if (mc.getAmount() <= 0.0) {
-                throw new InvalidAmountException("Category amount must be greater than zero");
-            }
             totalCategories += mc.getAmount();
         }
         if(totalCategories != obj.getAmount()) {
@@ -413,11 +333,6 @@ public class MovementService {
         Set<Integer> numbers = new HashSet<>();
 
         for (Installment installment : obj.getInstallments()) {
-            //numero > 0
-            if (installment.getNumber() != null && installment.getNumber() <= 0) {
-                throw new InvalidInstallmentException("Installment number must be greater than zero");
-            }
-
             if (installment.getAmount() <= 0.0) {
                 throw new InvalidAmountException("Installment amount must be greater than zero");
             }
@@ -428,10 +343,6 @@ public class MovementService {
             //soma das parcelas
             totalAmountInstallments += installment.getAmount();
 
-            //dueDate obrigatório
-            if (installment.getDueDate() == null) {
-                throw new InvalidInstallmentException("Installment due date cannot be null");
-            }
         }
         //valida soma das parcelas
         if (totalAmountInstallments != obj.getAmount()) {

@@ -4,8 +4,10 @@ import com.smartfinance.dto.UserRequestDTO;
 import com.smartfinance.dto.UserResponseDTO;
 import com.smartfinance.services.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -31,7 +33,7 @@ public class UserResource {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> insert(@Valid @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> insert(@Validated({Default.class, UserRequestDTO.OnCreate.class}) @RequestBody UserRequestDTO dto) {
         UserResponseDTO response = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);

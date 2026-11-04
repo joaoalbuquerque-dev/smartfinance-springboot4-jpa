@@ -47,8 +47,8 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponseDTO insert(PaymentRequestDTO dto) {
-        if (dto == null || dto.installmentId() == null) {
-            throw new InvalidPaymentException("Installment ID cannot be null");
+        if (dto == null) {
+            throw new InvalidPaymentException("Payment cannot be null");
         }
 
         Installment installment = installmentRepository.findById(dto.installmentId())
