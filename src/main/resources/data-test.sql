@@ -1,7 +1,7 @@
 INSERT INTO tb_user (id, name, email, password) VALUES
-(1, 'Maria Brown', 'maria@gmail.com', '123456'),
-(2, 'Alex Green', 'alex@gmail.com', '123456'),
-(3, 'Jacob Black', 'jacob@gmail.com', '123456');
+(1, 'Maria Brown', 'maria@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W'),
+(2, 'Alex Green', 'alex@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W'),
+(3, 'Jacob Black', 'jacob@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W');
 
 INSERT INTO tb_account (id, bank, balance, account_type, user_id) VALUES
 (1, 'Nubank', 2100.00, 1, 1),
