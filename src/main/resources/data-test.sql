@@ -39,6 +39,15 @@ VALUES
 (1, 1, 400.00, '2026-10-10', 'PENDING', 1),
 (2, 2, 400.00, '2026-11-10', 'PENDING', 1);
 
+INSERT INTO tb_role (id, authority) VALUES
+(1, 'ROLE_ADMIN'),
+(2, 'ROLE_USER');
+
+INSERT INTO tb_user_role (user_id, role_id) VALUES
+(1, 1),
+(2, 2),
+(3, 2);
+
 -- Ajuste dos contadores de IDENTITY
 
 ALTER TABLE tb_user
@@ -54,4 +63,7 @@ ALTER TABLE tb_movement
     ALTER COLUMN id RESTART WITH 6;
 
 ALTER TABLE tb_installment
+    ALTER COLUMN id RESTART WITH 3;
+
+ALTER TABLE tb_role
     ALTER COLUMN id RESTART WITH 3;

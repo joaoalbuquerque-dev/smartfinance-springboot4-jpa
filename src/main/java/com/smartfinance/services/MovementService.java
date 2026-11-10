@@ -164,8 +164,7 @@ public class MovementService {
             Category category = categoryRepository
                     .findById(categoryRequest.categoryId())
                     .orElseThrow(() -> new ResourceNotFoundExcepetion(
-                            categoryRequest.categoryId()
-                    ));
+                            categoryRequest.categoryId()));
 
             movement.getMovementCategories().add(
                     new MovementCategory(movement, category,
