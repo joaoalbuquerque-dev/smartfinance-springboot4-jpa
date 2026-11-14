@@ -29,7 +29,7 @@ public class Movement implements Serializable {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "id.movement")
+    @OneToMany(mappedBy = "id.movement", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MovementCategory> movementCategories = new HashSet<>();
 
     @OneToMany(mappedBy = "movement", cascade = CascadeType.ALL, orphanRemoval = true)
