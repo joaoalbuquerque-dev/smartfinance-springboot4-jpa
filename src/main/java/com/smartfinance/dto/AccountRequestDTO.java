@@ -13,9 +13,5 @@ public record AccountRequestDTO(
         Double balance,
 
         @NotNull(message = "Account type is required")
-        AccountType accountType,
-
-        @NotNull(message = "User ID is required")
-        @Positive(message = "User ID must be greater than zero")
-        Long userId) {
+        AccountType accountType) {
 }

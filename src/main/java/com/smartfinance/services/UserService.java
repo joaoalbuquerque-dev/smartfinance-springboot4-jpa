@@ -109,4 +109,11 @@ public class UserService implements UserDetailsService {
         User user = authenticated();
         return new UserResponseDTO(user);
     }
+
+    @Transactional
+    public UserResponseDTO updateMe(UserRequestDTO dto) {
+        User user = authenticated();
+        updateData(user, dto);
+        return new UserResponseDTO(repository.save(user));
+    }
 }

@@ -10,6 +10,7 @@ import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,9 @@ public class AccountService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Transactional(readOnly = true)
     public List<AccountResponseDTO> findAll() {
         return repository.findAll().stream()
@@ -39,7 +43,7 @@ public class AccountService {
 
     @Transactional
     public AccountResponseDTO insert(AccountRequestDTO dto) {
-        User user = findUserById(dto.userId());
+        User user = userService.authenticated();
         Account account = new Account(null, dto.bank(), dto.balance(),
                 dto.accountType(), user);
         return new AccountResponseDTO(repository.save(account));
@@ -56,9 +60,12 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountResponseDTO update(Long id, AccountRequestDTO dto) {
+    public AccountResponseDTO update(Long id, AccountRequestDTO dto)  {
+        User user = userService.authenticated();
         Account entity = findEntityById(id);
-        User user = findUserById(dto.userId());
+        if(!entity.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You don't have permission to modify this account");
+        }
         updateData(entity, dto, user);
         return new AccountResponseDTO(repository.save(entity));
     }
@@ -77,6 +84,5 @@ public class AccountService {
         entity.setBank(dto.bank());
         entity.setBalance(dto.balance());
         entity.setAccountType(dto.accountType());
-        entity.setUser(user);
     }
 }

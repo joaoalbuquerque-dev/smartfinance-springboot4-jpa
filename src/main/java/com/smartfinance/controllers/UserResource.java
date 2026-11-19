@@ -22,27 +22,26 @@ public class UserResource {
     @Autowired
     private UserService service;
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> findAll() {
 
         return ResponseEntity.ok().body(service.findAll());
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping(value = "/me")
     public ResponseEntity<UserResponseDTO> getMe() {
         UserResponseDTO dto = service.getMe();
         return ResponseEntity.ok(dto);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     @PostMapping
     public ResponseEntity<UserResponseDTO> insert(@Validated({Default.class, UserRequestDTO.OnCreate.class}) @RequestBody UserRequestDTO dto) {
         UserResponseDTO response = service.insert(dto);
@@ -50,16 +49,22 @@ public class UserResource {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateMe(@Valid @RequestBody UserRequestDTO dto) {
+        return ResponseEntity.ok(service.updateMe(dto));
     }
 }

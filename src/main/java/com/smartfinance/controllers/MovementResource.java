@@ -20,20 +20,20 @@ public class MovementResource {
     @Autowired
     private MovementService service;
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<List<MovementResponseDTO>> findAll() {
 
         return ResponseEntity.ok().body(service.findAll());
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<MovementResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<MovementResponseDTO> insert(@Valid @RequestBody MovementRequestDTO dto) {
         MovementResponseDTO response = service.insert(dto);
@@ -41,14 +41,14 @@ public class MovementResource {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<MovementResponseDTO> update(@PathVariable Long id, @Valid @RequestBody MovementRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));

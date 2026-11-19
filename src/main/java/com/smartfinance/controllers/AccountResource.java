@@ -20,20 +20,20 @@ public class AccountResource {
     @Autowired
     private AccountService service;
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping
     public ResponseEntity<List<AccountResponseDTO>> findAll() {
 
         return ResponseEntity.ok().body(service.findAll());
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<AccountResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<AccountResponseDTO> insert(@Valid @RequestBody AccountRequestDTO dto) {
         AccountResponseDTO response = service.insert(dto);
@@ -41,14 +41,14 @@ public class AccountResource {
         return ResponseEntity.created(uri).body(response);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
          service.delete(id);
          return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<AccountResponseDTO> update(@PathVariable Long id, @Valid @RequestBody AccountRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
