@@ -2,10 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.dto.PaymentRequestDTO;
 import com.smartfinance.dto.PaymentResponseDTO;
-import com.smartfinance.entities.Account;
-import com.smartfinance.entities.Installment;
-import com.smartfinance.entities.Movement;
-import com.smartfinance.entities.Payment;
+import com.smartfinance.entities.*;
 import com.smartfinance.entities.enums.InstallmentStatus;
 import com.smartfinance.entities.enums.TransactionType;
 import com.smartfinance.repositories.AccountRepository;
@@ -32,10 +29,13 @@ public class PaymentService {
     InstallmentRepository installmentRepository;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    UserService userService;
 
     @Transactional(readOnly = true)
     public List<PaymentResponseDTO> findAll() {
-        return repository.findAll().stream()
+        User user = userService.authenticated();
+        return repository.findByInstallment_Movement_Account_User_Id(user.getId()).stream()
                 .map(PaymentResponseDTO::new)
                 .toList();
     }
@@ -47,11 +47,12 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponseDTO insert(PaymentRequestDTO dto) {
+        User user = userService.authenticated();
         if (dto == null) {
             throw new InvalidPaymentException("Payment cannot be null");
         }
 
-        Installment installment = installmentRepository.findById(dto.installmentId())
+        Installment installment = installmentRepository.findByIdAndMovement_Account_User_Id(dto.installmentId(), user.getId())
                 .orElseThrow(()-> new ResourceNotFoundExcepetion(dto.installmentId()));
 
         Payment payment = new Payment();
@@ -103,8 +104,9 @@ public class PaymentService {
     }
 
     private Payment findEntityById(Long id) {
-        Optional<Payment> obj = repository.findById(id);
-        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+    User user = userService.authenticated();
+    return repository.findByIdAndInstallment_Movement_Account_User_Id(id, user.getId())
+            .orElseThrow(()->new ResourceNotFoundExcepetion(id));
     }
 
 

@@ -32,17 +32,22 @@ public class MovementService {
     private AccountRepository accountRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private UserService userService;
 
     @Transactional(readOnly = true)
     public List<MovementResponseDTO> findAll() {
-        return repository.findAll().stream()
+        User user = userService.authenticated();
+        return repository.findByAccount_User_Id(user.getId()).stream()
                 .map(MovementResponseDTO::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public MovementResponseDTO findById(Long id) {
-       return new MovementResponseDTO(findEntityById(id));
+        User user = userService.authenticated();
+       Movement movement = repository.findByIdAndAccount_User_Id(id, user.getId()).orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+       return new MovementResponseDTO(movement);
     }
 
     @Transactional
@@ -130,8 +135,9 @@ public class MovementService {
     }
 
     private Movement findEntityById(Long id) {
-        Optional<Movement> obj = repository.findById(id);
-        return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
+        User user = userService.authenticated();
+        return repository.findByIdAndAccount_User_Id(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
     private Movement fromRequest(MovementRequestDTO dto) {
@@ -150,7 +156,8 @@ public class MovementService {
     }
 
     private Account findAccountById(Long accountId) {
-        return accountRepository.findById(accountId)
+        User user = userService.authenticated();
+        return accountRepository.findByIdAndUserId(accountId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundExcepetion(accountId));
     }
 

@@ -1,7 +1,8 @@
 INSERT INTO tb_user (id, name, email, password) VALUES
 (1, 'Maria Brown', 'maria@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W'),
 (2, 'Alex Green', 'alex@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W'),
-(3, 'Jacob Black', 'jacob@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W');
+(3, 'Jacob Black', 'jacob@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W'),
+(4, 'Victor Manoel', 'victor@gmail.com', '$2a$10$ewVYUW6jHI685AMn9O/Aee3DjAcLSCMHiLeOAjK5.B/au3UiMf5.W');
 
 INSERT INTO tb_account (id, bank, balance, account_type, user_id) VALUES
 (1, 'Nubank', 2100.00, 1, 1),
@@ -44,9 +45,10 @@ INSERT INTO tb_role (id, authority) VALUES
 (2, 'ROLE_USER');
 
 INSERT INTO tb_user_role (user_id, role_id) VALUES
-(1, 1),
+(1, 2),
 (2, 2),
-(3, 2);
+(3, 2),
+(4, 1);
 
 -- Ajuste dos contadores de IDENTITY
 

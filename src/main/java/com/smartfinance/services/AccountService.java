@@ -2,6 +2,7 @@ package com.smartfinance.services;
 
 import com.smartfinance.dto.AccountRequestDTO;
 import com.smartfinance.dto.AccountResponseDTO;
+import com.smartfinance.dto.UserResponseDTO;
 import com.smartfinance.entities.Account;
 import com.smartfinance.entities.User;
 import com.smartfinance.repositories.AccountRepository;
@@ -31,14 +32,17 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public List<AccountResponseDTO> findAll() {
-        return repository.findAll().stream()
+        User user = userService.authenticated();
+        return repository.findByUserId(user.getId()).stream()
                 .map(AccountResponseDTO::new)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public AccountResponseDTO findById(Long id) {
-       return new AccountResponseDTO(findEntityById(id));
+       User user = userService.authenticated();
+        Account account = repository.findByIdAndUserId(id, user.getId()).orElseThrow(()-> new ResourceNotFoundExcepetion(id));
+        return new AccountResponseDTO(account);
     }
 
     @Transactional
@@ -51,9 +55,11 @@ public class AccountService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        findEntityById(id);
+        User user = userService.authenticated();
+        Account account = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(id));
         try {
-            repository.deleteById(id);
+            repository.delete(account);
         } catch (DataIntegrityViolationException e) {
             throw new DataBaseException(e.getMessage());
         }

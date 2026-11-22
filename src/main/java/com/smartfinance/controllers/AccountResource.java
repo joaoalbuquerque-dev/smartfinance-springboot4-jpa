@@ -2,7 +2,10 @@ package com.smartfinance.controllers;
 
 import com.smartfinance.dto.AccountRequestDTO;
 import com.smartfinance.dto.AccountResponseDTO;
+import com.smartfinance.dto.UserResponseDTO;
+import com.smartfinance.entities.Account;
 import com.smartfinance.services.AccountService;
+import com.smartfinance.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,9 @@ public class AccountResource {
 
     @Autowired
     private AccountService service;
+
+    @Autowired
+    private UserService userService;
 
     @PreAuthorize("hasRole('USER')")
     @GetMapping
