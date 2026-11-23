@@ -5,6 +5,7 @@ import com.smartfinance.dto.UserResponseDTO;
 import com.smartfinance.entities.Role;
 import com.smartfinance.entities.User;
 import com.smartfinance.projections.UserDetailsProjection;
+import com.smartfinance.repositories.RoleRepository;
 import com.smartfinance.repositories.UserRepository;
 import com.smartfinance.services.exceptions.DataBaseException;
 import com.smartfinance.services.exceptions.ResourceNotFoundExcepetion;
@@ -15,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,6 +30,10 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> findAll() {
@@ -43,7 +49,10 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserResponseDTO insert(UserRequestDTO dto) {
-        User user = new User(null, dto.name(), dto.email(), dto.password());
+        User user = new User(null, dto.name(), dto.email(), passwordEncoder.encode(dto.password()));
+        Role role = roleRepository.findByAuthority("ROLE_USER")
+                .orElseThrow(()-> new IllegalStateException("ROLE_USER not found"));
+        user.addRole(role);
         return new UserResponseDTO(repository.save(user));
     }
 
@@ -73,7 +82,7 @@ public class UserService implements UserDetailsService {
         entity.setName(dto.name());
 
         if (dto.password() != null && !dto.password().isBlank()) {
-            entity.setPassword(dto.password());
+            entity.setPassword(passwordEncoder.encode(dto.password()));
         }
     }
 

@@ -69,3 +69,6 @@ ALTER TABLE tb_installment
 
 ALTER TABLE tb_role
     ALTER COLUMN id RESTART WITH 3;
+
+ALTER TABLE tb_user
+    ALTER COLUMN id RESTART WITH 5;
