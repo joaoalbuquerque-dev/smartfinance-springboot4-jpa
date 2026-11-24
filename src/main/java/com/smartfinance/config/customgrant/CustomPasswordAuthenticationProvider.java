@@ -1,9 +1,5 @@
 package com.smartfinance.config.customgrant;
 
-import java.security.Principal;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -12,13 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClaimAccessor;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
-import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -30,6 +20,9 @@ import org.springframework.security.oauth2.server.authorization.token.DefaultOAu
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.util.Assert;
+
+import java.security.Principal;
+import java.util.Set;
 
 public class CustomPasswordAuthenticationProvider implements AuthenticationProvider {
 
@@ -73,10 +66,15 @@ public class CustomPasswordAuthenticationProvider implements AuthenticationProvi
 			throw new OAuth2AuthenticationException("Invalid credentials");
 		}
 
-		Set<String> authorizedScopes = user.getAuthorities().stream()
-				.map(scope -> scope.getAuthority())
-				.filter(scope -> registeredClient.getScopes().contains(scope))
-				.collect(Collectors.toSet());
+        Set<String> requestedScopes = customPasswordAuthenticationToken.getScopes();
+
+        Set<String> allowedScopes = registeredClient.getScopes();
+
+        if (!allowedScopes.containsAll(requestedScopes)) {
+            throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_SCOPE);
+        }
+
+        Set<String> authorizedScopes = requestedScopes;
 
 		//-----------Create a new Security Context Holder Context----------
 		OAuth2ClientAuthenticationToken oAuth2ClientAuthenticationToken = (OAuth2ClientAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
