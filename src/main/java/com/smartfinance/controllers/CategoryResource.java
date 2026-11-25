@@ -27,13 +27,13 @@ public class CategoryResource {
         return ResponseEntity.ok().body(service.findAll());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping(value = "/{id}")
     public ResponseEntity<CategoryResponseDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok().body(service.findById(id));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryResponseDTO> insert(@Valid @RequestBody CategoryRequestDTO dto) {
         CategoryResponseDTO response = service.insert(dto);
@@ -42,13 +42,21 @@ public class CategoryResource {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/global")
+    public ResponseEntity<CategoryResponseDTO> insertGlobal(@Valid @RequestBody CategoryRequestDTO dto) {
+        CategoryResponseDTO response = service.insertGlobal(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/categories/{id}").buildAndExpand(response.id()).toUri();
+        return ResponseEntity.created(uri).body(response);
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id, @Valid @RequestBody CategoryRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));

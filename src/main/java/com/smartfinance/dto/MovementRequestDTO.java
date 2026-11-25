@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 public record MovementRequestDTO(
         String description,
@@ -28,7 +27,7 @@ public record MovementRequestDTO(
         Long accountId,
 
         @NotEmpty(message = "Movement must have at least one category")
-        Set<@NotNull(message = "Movement category is required")
+        List<@NotNull(message = "Movement category is required")
                 @Valid MovementCategoryRequestDTO> categories,
 
         @NotNull(message = "Installments list is required")

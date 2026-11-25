@@ -53,10 +53,7 @@ public class MovementService {
     @Transactional
     public MovementResponseDTO insert(MovementRequestDTO dto) {
         Movement obj = fromRequest(dto);
-
-        validateCategories(obj);
         validateAmountCategories(obj);
-
         Account account = obj.getAccount();
 
         if (!obj.getInstallments().isEmpty()) {
@@ -101,7 +98,6 @@ public class MovementService {
         Movement entity = findEntityById(id);
 
         validateAccountUnchanged(entity, obj);
-        validateCategories(obj);
         validateAmountCategories(obj);
 
         if (entity.getInstallments().stream()
@@ -161,36 +157,37 @@ public class MovementService {
                 .orElseThrow(() -> new ResourceNotFoundExcepetion(accountId));
     }
 
-    private void addCategories(Movement movement,
-                               Set<MovementCategoryRequestDTO> categories) {
+    private Category findCategoryById(Long categoryId) {
+        User user = userService.authenticated();
+
+        return categoryRepository.findAvailableById(categoryId, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundExcepetion(categoryId));
+    }
+
+    private void addCategories(Movement movement, List<MovementCategoryRequestDTO> categories) {
         if (categories == null) {
             return;
         }
+        Set<Long> categoryIds = new HashSet<>();
 
         for (MovementCategoryRequestDTO categoryRequest : categories) {
-            Category category = categoryRepository
-                    .findById(categoryRequest.categoryId())
-                    .orElseThrow(() -> new ResourceNotFoundExcepetion(
-                            categoryRequest.categoryId()));
-
-            movement.getMovementCategories().add(
-                    new MovementCategory(movement, category,
-                            categoryRequest.amount())
-            );
+            if (!categoryIds.add(categoryRequest.categoryId())) {
+                throw new InvalidMovementCategoryException(
+                        "Category cannot be duplicated");
+            }
+            Category category = findCategoryById(categoryRequest.categoryId());
+            movement.getMovementCategories().add(new MovementCategory(movement, category, categoryRequest.amount()));
         }
     }
 
-    private void addInstallments(Movement movement,
-                                 List<InstallmentRequestDTO> installments) {
+    private void addInstallments(Movement movement, List<InstallmentRequestDTO> installments) {
         if (installments == null) {
             return;
         }
 
         for (InstallmentRequestDTO installmentRequest : installments) {
-            movement.getInstallments().add(new Installment(null,
-                    installmentRequest.number(), null,
-                    installmentRequest.dueDate(), InstallmentStatus.PENDING,
-                    movement));
+            movement.getInstallments().add(new Installment(null, installmentRequest.number(), null,
+                    installmentRequest.dueDate(), InstallmentStatus.PENDING, movement));
         }
     }
 
@@ -224,17 +221,11 @@ public class MovementService {
 
     private void synchronizeInstallments(Movement entity, Movement obj) {
         entity.getInstallments().removeIf(current ->
-                obj.getInstallments().stream()
-                        .noneMatch(desired ->
-                                desired.getNumber().equals(current.getNumber()))
-        );
+                obj.getInstallments().stream().noneMatch(desired -> desired.getNumber().equals(current.getNumber())));
 
         for (Installment desired : obj.getInstallments()) {
-            Installment current = entity.getInstallments().stream()
-                    .filter(installment ->
-                            installment.getNumber().equals(desired.getNumber()))
-                    .findFirst()
-                    .orElse(null);
+            Installment current = entity.getInstallments().stream().filter(installment ->
+                            installment.getNumber().equals(desired.getNumber())).findFirst().orElse(null);
 
             if (current != null) {
                 current.setAmount(desired.getAmount());
@@ -262,8 +253,7 @@ public class MovementService {
         for (MovementCategory requested : obj.getMovementCategories()) {
             Long categoryId = requested.getCategory().getId();
 
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ResourceNotFoundExcepetion(categoryId));
+            Category category = requested.getCategory();
 
             MovementCategory current = currentCategories.remove(categoryId);
 
@@ -278,8 +268,7 @@ public class MovementService {
             }
         }
 
-        List<MovementCategory> removedCategories =
-                new ArrayList<>(currentCategories.values());
+        List<MovementCategory> removedCategories = new ArrayList<>(currentCategories.values());
 
         if (!removedCategories.isEmpty()) {
             entity.getMovementCategories().removeAll(removedCategories);
@@ -297,25 +286,11 @@ public class MovementService {
         }
     }
 
-    private void applyBalance(Account account,
-                              TransactionType transactionType,
-                              double amount) {
+    private void applyBalance(Account account, TransactionType transactionType, double amount) {
         if (transactionType == TransactionType.EXPENSE) {
             account.setBalance(account.getBalance() - amount);
         } else if (transactionType == TransactionType.INCOME) {
             account.setBalance(account.getBalance() + amount);
-        }
-    }
-
-    private void validateCategories(Movement obj) {
-        Set<Long> categoryIds = new HashSet<>();
-        for (MovementCategory mc : obj.getMovementCategories()) {
-          categoryRepository.findById(mc.getCategory().getId())
-                    .orElseThrow(()-> new ResourceNotFoundExcepetion(mc.getCategory().getId()));
-
-            if (!categoryIds.add(mc.getCategory().getId())) {
-                throw new InvalidMovementCategoryException("Category cannot be duplicated");
-            }
         }
     }
 
@@ -407,5 +382,4 @@ public class MovementService {
 
         }
     }
-
 }
