@@ -81,14 +81,20 @@ public class MovementService {
         return new MovementResponseDTO(obj);
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional
     public void delete(Long id) {
-        findEntityById(id);
-        try {
-            repository.deleteById(id);
-        } catch (DataIntegrityViolationException e) {
-            throw new DataBaseException(e.getMessage());
+        Movement movement = findEntityById(id);
+
+        boolean hasPaidInstallment = movement.getInstallments().stream()
+                .anyMatch(installment -> installment.getStatus() == InstallmentStatus.PAID);
+
+        if (hasPaidInstallment) {
+            throw new InvalidMovementException("Delete the payments before deleting this movement");
         }
+        if (movement.getInstallments().isEmpty()) {
+            reverseBalance(movement.getAccount(), movement.getTransactionType(), movement.getAmount());
+        }
+        repository.delete(movement);
     }
 
     @Transactional
@@ -276,9 +282,7 @@ public class MovementService {
         }
     }
 
-    private void reverseBalance(Account account,
-                                TransactionType transactionType,
-                                double amount) {
+    private void reverseBalance(Account account, TransactionType transactionType, double amount) {
         if (transactionType == TransactionType.EXPENSE) {
             account.setBalance(account.getBalance() + amount);
         } else if (transactionType == TransactionType.INCOME) {
