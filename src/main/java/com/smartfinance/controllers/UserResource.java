@@ -1,7 +1,8 @@
 package com.smartfinance.controllers;
 
-import com.smartfinance.dto.UserRequestDTO;
+import com.smartfinance.dto.UserCreateRequestDTO;
 import com.smartfinance.dto.UserResponseDTO;
+import com.smartfinance.dto.UserUpdateRequestDTO;
 import com.smartfinance.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
@@ -43,7 +44,7 @@ public class UserResource {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> insert(@Validated({Default.class, UserRequestDTO.OnCreate.class}) @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> insert(@Validated({Default.class, UserCreateRequestDTO.OnCreate.class}) @RequestBody UserCreateRequestDTO dto) {
         UserResponseDTO response = service.insert(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(uri).body(response);
@@ -58,13 +59,13 @@ public class UserResource {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/{id}")
-    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateRequestDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
     }
 
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PutMapping("/me")
-    public ResponseEntity<UserResponseDTO> updateMe(@Valid @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<UserResponseDTO> updateMe(@Valid @RequestBody UserUpdateRequestDTO dto) {
         return ResponseEntity.ok(service.updateMe(dto));
     }
 }

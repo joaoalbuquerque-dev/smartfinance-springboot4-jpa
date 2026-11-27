@@ -1,7 +1,8 @@
 package com.smartfinance.services;
 
-import com.smartfinance.dto.UserRequestDTO;
+import com.smartfinance.dto.UserCreateRequestDTO;
 import com.smartfinance.dto.UserResponseDTO;
+import com.smartfinance.dto.UserUpdateRequestDTO;
 import com.smartfinance.entities.Role;
 import com.smartfinance.entities.User;
 import com.smartfinance.projections.UserDetailsProjection;
@@ -48,7 +49,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponseDTO insert(UserRequestDTO dto) {
+    public UserResponseDTO insert(UserCreateRequestDTO dto) {
         User user = new User(null, dto.name(), dto.email(), passwordEncoder.encode(dto.password()));
         Role role = roleRepository.findByAuthority("ROLE_USER")
                 .orElseThrow(()-> new IllegalStateException("ROLE_USER not found"));
@@ -67,7 +68,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponseDTO update(Long id, UserRequestDTO dto) {
+    public UserResponseDTO update(Long id, UserUpdateRequestDTO dto) {
         User entity = findEntityById(id);
         updateData(entity, dto);
         return new UserResponseDTO(repository.save(entity));
@@ -78,7 +79,7 @@ public class UserService implements UserDetailsService {
         return obj.orElseThrow(() -> new ResourceNotFoundExcepetion(id));
     }
 
-    private void updateData(User entity, UserRequestDTO dto) {
+    private void updateData(User entity, UserUpdateRequestDTO dto) {
         entity.setName(dto.name());
 
         if (dto.password() != null && !dto.password().isBlank()) {
@@ -90,7 +91,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<UserDetailsProjection> result = repository.searchUserAndRolesByEmail(username);
         if (result.isEmpty()) {
-            throw new ResourceNotFoundExcepetion("User not found");
+            throw new UsernameNotFoundException("User not found");
         }
         User user = new User();
         user.setEmail(username);
@@ -120,7 +121,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponseDTO updateMe(UserRequestDTO dto) {
+    public UserResponseDTO updateMe(UserUpdateRequestDTO dto) {
         User user = authenticated();
         updateData(user, dto);
         return new UserResponseDTO(repository.save(user));
